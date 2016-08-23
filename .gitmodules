@@ -1,0 +1,3 @@
+[submodule "moyai"]
+	path = moyai
+	url = git@github.com:kengonakajima/moyai
