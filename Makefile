@@ -8,11 +8,11 @@ LIBFLAGS=moyai/libmoyaicl.a /usr/local/Cellar/libuv/1.8.0/lib/libuv.a moyai/untz
 
 
 
-all : danmaku
+all : dm
 
-danmaku : danmaku.cpp
-	g++ $(CFLAGS) danmaku.cpp $(LIBFLAGS) -o danmaku
+dm : danmaku.cpp
+	g++ $(CFLAGS) danmaku.cpp $(LIBFLAGS) -o dm
 
 clean :
-	rm danmaku
+	rm dm
 

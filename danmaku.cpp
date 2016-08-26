@@ -3,7 +3,7 @@
 #include <math.h>
 #include <locale.h>
 
-
+#include "atlas.h"
 
 #ifndef WIN32
 #include <strings.h>
@@ -27,10 +27,6 @@ Camera *g_camera;
 Texture *g_bmpfont_atlas;
 TileDeck *g_bmpfont_deck;
 
-ColorReplacerShader *g_replacer_shader;
-
-
-
 
 SoundSystem *g_sound_system;
 
@@ -52,6 +48,35 @@ Pad *g_pad;
 
 static const int SCRW=1024, SCRH=640;
 
+
+class Ship;
+Ship *g_myship;
+
+
+
+
+//////////////////////////
+
+class Ship : public Prop2D {
+public:
+    Ship() : Prop2D() {
+        setIndex( ATLAS_MYSHIP );
+        setScl(24);
+        setLoc(0,0);
+        setDeck(g_base_deck);
+        g_main_layer->insertProp(this);        
+    }
+    virtual bool prop2DPoll(double dt) {
+        Vec2 padvec;
+        g_pad->getVec( &padvec );
+        float speed = 240;
+        Vec2 dloc = padvec * dt * speed;
+        loc += dloc;
+        return true;
+    }
+};
+
+////////////////////////////
 
 void gameUpdate(void) {
     glfwPollEvents();            
@@ -87,8 +112,6 @@ void gameUpdate(void) {
         delete img;
     }
 
-    // replace white to random color
-    g_replacer_shader->setColor( Color(0xF7E26B), Color( range(0,1),range(0,1),range(0,1),1), 0.02 );
 
     if( g_keyboard->getKey( 'Q') ) {
         print("Q pressed");
@@ -125,87 +148,14 @@ void gameUpdate(void) {
     if(loop_time < ideal_frame_time ) {
         double to_sleep_sec = ideal_frame_time - loop_time;
         int to_sleep_msec = (int) (to_sleep_sec*1000);
-        if( to_sleep_msec > 0 ) sleepMilliSec(to_sleep_msec);
+        if( to_sleep_msec > 0 ) {
+            prt( "s:%d ",to_sleep_msec);
+            sleepMilliSec(to_sleep_msec);
+        }
     }
 }
 
-void qstest(){
-    SorterEntry tosort[5];
-    tosort[0].val = 9;
-    tosort[0].ptr = (void*)"aho";
-    tosort[1].val = 5;
-    tosort[1].ptr = (void*)"hoo";
-    tosort[2].val = 1;
-    tosort[2].ptr = (void*)"mog";
-    tosort[3].val = 8;
-    tosort[3].ptr = (void*)"tek";
-    tosort[4].val = 10;
-    tosort[4].ptr = (void*)"pak";
-    
-    quickSortF(tosort,0,5-1);
-    for(int i=0;i<5;i++){
-        print("val:%f %s",tosort[i].val, (char*)tosort[i].ptr );
-    }
-    assert( tosort[0].val == 1 );
-    assert( strcmp( (char*)tosort[0].ptr, "mog" ) == 0 );
-    assert( tosort[4].val == 10 );
-    assert( strcmp( (char*)tosort[4].ptr, "pak" ) == 0 );    
-    
-}
 
-void optest(){
-    Vec2 a(1,2);
-    Vec2 b(2,3);
-    Vec2 c = a + b;
-    assert( c.x == 3 );
-    assert( c.y == 5 );
-    assert( c == Vec2(3,5) );
-    assert( c != Vec2(3,4) );
-    assert( c != Vec2(3.1,5) );
-    assert( !c.isZero() );
-    c = Vec2(0,0);
-    assert( c.isZero() );
-    
-    Vec2 d = a - b;
-    assert( d.x == -1 );
-    assert( d.y == -1 );
-
-    Vec2 e = a * 2;
-    assert( e.x == 2 );
-    assert( e.y == 4 );
-
-    Vec2 f(2,3);
-    f *= 2;
-    assert( f.x == 4);
-    assert( f.y == 6);
-
-    Vec2 g(2,4);
-    g /= 2;
-    assert( g.x == 1);
-    assert( g.y == 2);
-
-    Vec2 h(2,3);
-    h += Vec2(1,2);
-    assert( h.x == 3);
-    assert( h.y == 5);    
-
-    Vec2 k(2,3);
-    k -= Vec2(5,5);
-    assert( k.x == -3);
-    assert( k.y == -2);    
-
-    print("optest done");    
-}
-
-void comptest() {
-    char buf[] = "hogehogefugafugahogefugapiyopiyo";
-    char zipped[1024];
-    char inflated[1024];
-    int zipped_len = memCompressSnappy( zipped, sizeof(zipped), buf, (int)strlen(buf) );
-    int inflated_len = memDecompressSnappy( inflated, sizeof(inflated), zipped, zipped_len );
-    inflated[inflated_len] = '\0';
-    print("snappy: %d bytes to %d byte", inflated_len, zipped_len );
-}
 
 
 void winclose_callback( GLFWwindow *w ){
@@ -242,9 +192,6 @@ void onRemoteMouseCursorCallback( Client *cl, int x, int y ) {
     g_mouse->updateCursorPosition(x,y);
 }
 void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videostream ) {
-    qstest();
-    optest();
-    comptest();
 
     print("gameInit: headless_mode:%d spritestream:%d videostream:%d", headless_mode, enable_spritestream, enable_videostream );
 
@@ -264,7 +211,7 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     }
 
     glfwSetErrorCallback( glfw_error_cb );
-    g_window =  glfwCreateWindow( SCRW, SCRH, "demo2d", NULL, NULL );
+    g_window =  glfwCreateWindow( SCRW, SCRH, "danmaku", NULL, NULL );
     if(g_window == NULL ) {
         print("can't open glfw window");
         glfwTerminate();
@@ -288,13 +235,6 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
 
     glfwSetFramebufferSizeCallback( g_window, fbsizeCallback );
     g_pad = new Pad();
-
-    // shader    
-    g_replacer_shader = new ColorReplacerShader();
-    if( !g_replacer_shader->init() ){
-        print("can't initialize shader");
-        exit(1);
-    }
 
     g_moyai_client = new MoyaiClient(g_window, SCRW, SCRH );
     
@@ -322,21 +262,6 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_viewport->setSize(SCRW*RETINA,SCRH*RETINA); // set actual framebuffer size to output
     g_viewport->setScale2D(SCRW,SCRH); // set scale used by props that will be rendered
 
-#if 0
-    {
-        Texture *sss = new Texture();
-        sss->load( "./assets/dragon8.png" );
-        for(int y=0;y<sss->image->height;y++) {
-            for(int x=0;x<sss->image->width;x++) {
-                Color c = sss->image->getPixel(x,y);
-                prt( "%d ", (int)(c.r*255) );
-            }
-            prt("\n");
-        }
-        return 0;
-    }
-#endif
-
     g_main_layer = new Layer();
     g_moyai_client->insertLayer(g_main_layer);
     g_main_layer->setViewport(g_viewport);
@@ -344,13 +269,18 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_camera = new Camera();
     g_camera->setLoc(0,0);
     g_main_layer->setCamera(g_camera);
-
+    
     // atlas
     g_base_atlas = new Texture();
     g_base_atlas->load("./images/base1024.png");
     g_base_deck = new TileDeck();
     g_base_deck->setTexture(g_base_atlas);
-    g_base_deck->setSize(32,32,8,8 );
+    g_base_deck->setSize(32,42,24,24 );
+
+    // Objects
+
+    g_myship = new Ship();
+    
 }
 
 
@@ -377,6 +307,7 @@ int main(int argc, char **argv )
     }
         
     gameInit(headless_mode, enable_spritestream, enable_videostream);
+    
     while( !glfwWindowShouldClose(g_window) && (!g_game_done) ){
         gameUpdate();       
         gameRender();
