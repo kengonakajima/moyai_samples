@@ -3,5 +3,6 @@
 
 
 #define ATLAS_MYSHIP (16*32+0)
+#define ATLAS_BEAM (31*32+20)
 
 #endif

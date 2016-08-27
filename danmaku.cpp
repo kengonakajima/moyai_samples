@@ -17,6 +17,8 @@
 
 #include "moyai/client.h"
 
+bool g_use_vsync = 1;
+
 MoyaiClient *g_moyai_client;
 Viewport *g_viewport;
 Layer *g_main_layer;
@@ -57,14 +59,33 @@ Ship *g_myship;
 
 //////////////////////////
 
+class Beam : public Prop2D {
+public:
+    Vec2 v;    
+    Beam(Vec2 loc, Vec2 v) : Prop2D(), v(v) {
+        setLoc(loc);
+        setDeck(g_base_deck);
+        setUVRot(1);
+        setXFlip(1);            
+        setIndex(ATLAS_BEAM);
+        g_main_layer->insertProp(this);        
+    }
+    virtual bool prop2DPoll(double dt) {
+        loc += v*dt;
+        return true;
+    }
+};
+
 class Ship : public Prop2D {
 public:
-    Ship() : Prop2D() {
+    double shoot_at;
+    
+    Ship() : Prop2D(), shoot_at(0) {
         setIndex( ATLAS_MYSHIP );
-        setScl(24);
+        setScl(48);
         setLoc(0,0);
         setDeck(g_base_deck);
-        g_main_layer->insertProp(this);        
+        g_main_layer->insertProp(this);
     }
     virtual bool prop2DPoll(double dt) {
         Vec2 padvec;
@@ -72,7 +93,30 @@ public:
         float speed = 240;
         Vec2 dloc = padvec * dt * speed;
         loc += dloc;
+
+        setIndex( ATLAS_MYSHIP + ((poll_count/4)%2) );
+        
         return true;
+    }
+    void tryShoot() {
+        float interval = 0.1;
+        if(accum_time>shoot_at+interval) {
+            shoot();
+            shoot_at = accum_time;
+        }
+    }
+    void shoot() {
+        float beam_speed = 1000;
+        new Beam(loc+Vec2(0,20),Vec2(0,beam_speed)); // center
+
+        float fan_interval = M_PI/16.0;
+        for(int i=1;i<4;i++) {
+            float rad = M_PI/2.0f + fan_interval*(float)i;
+            new Beam(loc+Vec2(0,20),Vec2(::cos(rad),::sin(rad)).normalize(beam_speed));
+            rad = M_PI/2.0f - fan_interval*(float)i;
+            new Beam(loc+Vec2(0,20),Vec2(::cos(rad),::sin(rad)).normalize(beam_speed));
+        }
+
     }
 };
 
@@ -122,6 +166,9 @@ void gameUpdate(void) {
     if( g_keyboard->getKey( 'Y' ) ) {
         g_moyai_client->batch_list.dump();
     }
+    if( g_keyboard->getKey( GLFW_KEY_SPACE ) ) {
+        g_myship->tryShoot();
+    }
 
     if( g_mouse->getButton(0) ) {
         Vec2 cp = g_mouse->getCursorPos();
@@ -141,7 +188,8 @@ void gameUpdate(void) {
     }
 
     if(g_rh) g_rh->heartbeat();
-    
+
+    // need sleep even when using vsync, because GLFW don't wait vsync when window is background
     double loop_end_at = now();
     double loop_time = loop_end_at - loop_start_at;
     double ideal_frame_time = 1.0f / 60.0f;
@@ -149,7 +197,6 @@ void gameUpdate(void) {
         double to_sleep_sec = ideal_frame_time - loop_time;
         int to_sleep_msec = (int) (to_sleep_sec*1000);
         if( to_sleep_msec > 0 ) {
-            prt( "s:%d ",to_sleep_msec);
             sleepMilliSec(to_sleep_msec);
         }
     }
@@ -220,7 +267,7 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     glfwMakeContextCurrent(g_window);    
     glfwSetWindowCloseCallback( g_window, winclose_callback );
     //    glfwSetInputMode( g_window, GLFW_STICKY_KEYS, GL_TRUE );
-    glfwSwapInterval(0); // set 1 to use vsync. Use 0 for fast screen capturing and headless
+    glfwSwapInterval(g_use_vsync); // set 1 to use vsync. Use 0 for fast screen capturing and headless
 #ifdef WIN32
 	glewInit();
 #endif
