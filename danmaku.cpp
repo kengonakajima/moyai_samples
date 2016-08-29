@@ -31,7 +31,7 @@ TileDeck *g_bmpfont_deck;
 
 
 SoundSystem *g_sound_system;
-
+Sound *g_shoot_sound;
 
 
 int g_last_render_cnt ;
@@ -116,7 +116,7 @@ public:
             rad = M_PI/2.0f - fan_interval*(float)i;
             new Beam(loc+Vec2(0,20),Vec2(::cos(rad),::sin(rad)).normalize(beam_speed));
         }
-
+        g_shoot_sound->play();
     }
 };
 
@@ -249,7 +249,7 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     setlocale( LC_ALL, "jpn");
 #endif    
 
-    g_sound_system = new SoundSystem();
+
     
     // glfw
     if( !glfwInit() ) {
@@ -272,7 +272,7 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
 	glewInit();
 #endif
     glClearColor(0.2,0.2,0.2,1);
-
+    
     // controls
     g_keyboard = new Keyboard();
     glfwSetKeyCallback( g_window, keyboardCallback );
@@ -284,6 +284,11 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_pad = new Pad();
 
     g_moyai_client = new MoyaiClient(g_window, SCRW, SCRH );
+
+
+    // sounds
+    g_sound_system = new SoundSystem();
+    g_shoot_sound = g_sound_system->newSound( "./sounds/shoot.wav");
     
     if( headless_mode ) {
         Moyai::globalInitNetwork();
@@ -324,6 +329,7 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_base_deck->setTexture(g_base_atlas);
     g_base_deck->setSize(32,42,24,24 );
 
+    
     // Objects
 
     g_myship = new Ship();
