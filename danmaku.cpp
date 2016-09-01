@@ -139,7 +139,12 @@ public:
         loc += dloc;
 
         setIndex( ATLAS_MYSHIP + ((poll_count/4)%2) );
-        
+
+        if( Char::hitAny(this,10,CHARTYPE_BULLET) ||
+            Char::hitAny(this,10,CHARTYPE_ENEMY) ) {
+            loc = Vec2(0,0);
+        }
+         
         return true;
     }
     void tryShoot() {
@@ -202,7 +207,7 @@ public:
             g_beamhit_sound->play();
             hp--;
             mad = true;
-            to_shoot_at = accum_time + range(0.1,1);
+            to_shoot_at = accum_time + range(0.1,0.3);
             if(hp<0) {
                 g_enemydie_sound->play();
                 return false;
@@ -214,15 +219,16 @@ public:
             if(mad) {
                 float m = 300;
                 v = Vec2(range(-m,m),range(-m,m)) ;
-                if( accum_time > to_shoot_at ) {
-                    to_shoot_at = accum_time + range(0.1,0.5);
-                    new Bullet(loc,loc.to(g_myship->loc).normalize(200));
-                }
             } else {
                 Vec2 to_myship = g_myship->loc - loc;
                 v = to_myship.normalize(150);
             }
         }
+        if( mad && accum_time > to_shoot_at ) {
+            to_shoot_at = accum_time + range(0.05,0.2);
+            new Bullet(loc,loc.to(g_myship->loc+Vec2(range(-100,100),range(-100,100))).normalize(200));
+        }
+        
         if( isOutOfScreen() ) { print("out!"); return false; }
         return true;
     }
