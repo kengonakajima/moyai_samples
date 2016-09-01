@@ -32,6 +32,8 @@ TileDeck *g_bmpfont_deck;
 
 SoundSystem *g_sound_system;
 Sound *g_shoot_sound;
+Sound *g_beamhit_sound;
+Sound *g_enemydie_sound;
 
 
 int g_last_render_cnt ;
@@ -59,10 +61,46 @@ Ship *g_myship;
 
 //////////////////////////
 
-class Beam : public Prop2D {
+typedef enum {
+    CHARTYPE_SHIP = 1,
+    CHARTYPE_BEAM = 2,
+    CHARTYPE_ENEMY = 3,
+} CHARTYPE;
+
+class Char : public Prop2D {
+public:
+    CHARTYPE chartype;
+    Vec2 v;
+    Char( CHARTYPE t ) : Prop2D(), chartype(t) {
+    }
+    virtual bool charPoll(double dt) {return true;}
+    virtual bool prop2DPoll(double dt) {       
+        return charPoll(dt);
+    }
+    static Char *hitAny(Char *tgt, float r, CHARTYPE hittype ) {
+        Char *cur = (Char*)g_main_layer->prop_top;
+        while(cur) {
+            if( cur->chartype == hittype &&
+                cur != tgt &&
+                cur->to_clean == false &&
+                cur->loc.x > tgt->loc.x-r && cur->loc.x < tgt->loc.x+r &&
+                cur->loc.y > tgt->loc.y-r && cur->loc.y < tgt->loc.y+r ) {
+                return cur;
+            }
+            cur = (Char*)cur->next;
+        }
+        return NULL;
+    }
+    bool isOutOfScreen() {
+        float mgn=50;
+        return ( loc.y < -SCRH/2-mgn || loc.y > SCRH/2+mgn || loc.x < -SCRW/2-mgn || loc.x > SCRW/2+mgn );
+    }    
+};
+
+class Beam : public Char {
 public:
     Vec2 v;    
-    Beam(Vec2 loc, Vec2 v) : Prop2D(), v(v) {
+    Beam(Vec2 loc, Vec2 v) : Char(CHARTYPE_BEAM), v(v) {
         setLoc(loc);
         setDeck(g_base_deck);
         setUVRot(1);
@@ -70,24 +108,24 @@ public:
         setIndex(ATLAS_BEAM);
         g_main_layer->insertProp(this);        
     }
-    virtual bool prop2DPoll(double dt) {
+    virtual bool charPoll(double dt) {
         loc += v*dt;
         return true;
     }
 };
 
-class Ship : public Prop2D {
+class Ship : public Char {
 public:
     double shoot_at;
     
-    Ship() : Prop2D(), shoot_at(0) {
+    Ship() : Char(CHARTYPE_SHIP), shoot_at(0) {
         setIndex( ATLAS_MYSHIP );
         setScl(48);
         setLoc(0,0);
         setDeck(g_base_deck);
         g_main_layer->insertProp(this);
     }
-    virtual bool prop2DPoll(double dt) {
+    virtual bool charPoll(double dt) {
         Vec2 padvec;
         g_pad->getVec( &padvec );
         float speed = 240;
@@ -117,6 +155,49 @@ public:
             new Beam(loc+Vec2(0,20),Vec2(::cos(rad),::sin(rad)).normalize(beam_speed));
         }
         g_shoot_sound->play();
+    }
+};
+
+class Enemy : public Char {
+public:
+    bool mad;
+    int hp;
+    double turn_at;
+    Enemy( Vec2 loc ) : Char(CHARTYPE_ENEMY), mad(false), hp(10), turn_at(0) {
+        v.y = -200;
+        setLoc(loc);
+        setDeck(g_base_deck);
+        setIndex(ATLAS_ENEMY_ANIMBASE);
+        setScl(48);
+        g_main_layer->insertProp(this);
+    }
+    virtual bool charPoll(double dt) {
+        Char *hitchar = Char::hitAny(this,30,CHARTYPE_BEAM);
+        if(hitchar) {
+            hitchar->to_clean = true;
+            //            print("hit! this:%p hit:%p hp:%d",this, hitchar,hp);
+            g_beamhit_sound->play();
+            hp--;
+            mad = true;
+            if(hp<0) {
+                g_enemydie_sound->play();
+                return false;
+            }
+            setColor(Color(1,0.5,0.5,1));
+        }
+        if(turn_at<accum_time-0.5) {
+            turn_at = accum_time;            
+            if(mad) {
+                float m = 300;
+                v = Vec2(range(-m,m),range(-m,m)) ;
+            } else {
+                Vec2 to_myship = g_myship->loc - loc;
+                v = to_myship.normalize(150);
+            }
+        }
+        loc += v*dt;
+        if( isOutOfScreen() ) { print("out!"); return false; }
+        return true;
     }
 };
 
@@ -174,7 +255,15 @@ void gameUpdate(void) {
         Vec2 cp = g_mouse->getCursorPos();
         print("mouse button 0 %f,%f", cp.x, cp.y );
     }
+
+    ////
+    static double last_pop_at = 0;
+    if( last_pop_at < t-2) {
+        last_pop_at = t;
+        new Enemy( Vec2( range(-SCRW/2,SCRW/2), SCRH/2) );
+    }
     
+    ////
 
     int cnt;
     cnt = g_moyai_client->poll(dt);
@@ -289,6 +378,8 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     // sounds
     g_sound_system = new SoundSystem();
     g_shoot_sound = g_sound_system->newSound( "./sounds/shoot.wav");
+    g_enemydie_sound = g_sound_system->newSound( "./sounds/enemydie.wav");
+    g_beamhit_sound = g_sound_system->newSound( "./sounds/beamhit.wav");
     
     if( headless_mode ) {
         Moyai::globalInitNetwork();
