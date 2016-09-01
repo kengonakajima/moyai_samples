@@ -65,6 +65,7 @@ typedef enum {
     CHARTYPE_SHIP = 1,
     CHARTYPE_BEAM = 2,
     CHARTYPE_ENEMY = 3,
+    CHARTYPE_BULLET = 4,
 } CHARTYPE;
 
 class Char : public Prop2D {
@@ -74,7 +75,8 @@ public:
     Char( CHARTYPE t ) : Prop2D(), chartype(t) {
     }
     virtual bool charPoll(double dt) {return true;}
-    virtual bool prop2DPoll(double dt) {       
+    virtual bool prop2DPoll(double dt) {
+        loc += v*dt;
         return charPoll(dt);
     }
     static Char *hitAny(Char *tgt, float r, CHARTYPE hittype ) {
@@ -97,10 +99,12 @@ public:
     }    
 };
 
+///////////////////////
+
 class Beam : public Char {
 public:
-    Vec2 v;    
-    Beam(Vec2 loc, Vec2 v) : Char(CHARTYPE_BEAM), v(v) {
+    Beam(Vec2 loc, Vec2 to_v) : Char(CHARTYPE_BEAM) {
+        v=to_v;
         setLoc(loc);
         setDeck(g_base_deck);
         setUVRot(1);
@@ -109,10 +113,12 @@ public:
         g_main_layer->insertProp(this);        
     }
     virtual bool charPoll(double dt) {
-        loc += v*dt;
+        if(isOutOfScreen())return false;
         return true;
     }
 };
+
+///////////////
 
 class Ship : public Char {
 public:
@@ -158,12 +164,29 @@ public:
     }
 };
 
+class Bullet : public Char {
+public:
+    Bullet(Vec2 loc, Vec2 to_v) : Char(CHARTYPE_BULLET) {
+        v = to_v;
+        setIndex( ATLAS_ENEMY_BULLET );
+        setScl(48);
+        setLoc(loc);
+        setDeck(g_base_deck);
+        g_main_layer->insertProp(this);
+    }
+    virtual bool charPoll(double dt) {
+        return true;
+    }
+};
+
+
 class Enemy : public Char {
 public:
     bool mad;
     int hp;
     double turn_at;
-    Enemy( Vec2 loc ) : Char(CHARTYPE_ENEMY), mad(false), hp(10), turn_at(0) {
+    double to_shoot_at;
+    Enemy( Vec2 loc ) : Char(CHARTYPE_ENEMY), mad(false), hp(10), turn_at(0), to_shoot_at(0) {
         v.y = -200;
         setLoc(loc);
         setDeck(g_base_deck);
@@ -179,6 +202,7 @@ public:
             g_beamhit_sound->play();
             hp--;
             mad = true;
+            to_shoot_at = accum_time + range(0.1,1);
             if(hp<0) {
                 g_enemydie_sound->play();
                 return false;
@@ -190,16 +214,20 @@ public:
             if(mad) {
                 float m = 300;
                 v = Vec2(range(-m,m),range(-m,m)) ;
+                if( accum_time > to_shoot_at ) {
+                    to_shoot_at = accum_time + range(0.1,0.5);
+                    new Bullet(loc,loc.to(g_myship->loc).normalize(200));
+                }
             } else {
                 Vec2 to_myship = g_myship->loc - loc;
                 v = to_myship.normalize(150);
             }
         }
-        loc += v*dt;
         if( isOutOfScreen() ) { print("out!"); return false; }
         return true;
     }
 };
+
 
 ////////////////////////////
 
