@@ -34,7 +34,7 @@ SoundSystem *g_sound_system;
 Sound *g_shoot_sound;
 Sound *g_beamhit_sound;
 Sound *g_enemydie_sound;
-
+Sound *g_shipdie_sound;
 
 int g_last_render_cnt ;
 
@@ -137,11 +137,16 @@ public:
         float speed = 240;
         Vec2 dloc = padvec * dt * speed;
         loc += dloc;
+        if( loc.x<-SCRW/2+20 )loc.x = -SCRW/2+20;
+        if( loc.x>SCRW/2-20 )loc.x = SCRW/2-20;
+        if( loc.y<-SCRH+20 )loc.y = -SCRH/2+20;
+        if( loc.y>SCRH/2-20) loc.y = SCRH/2-20;
 
         setIndex( ATLAS_MYSHIP + ((poll_count/4)%2) );
 
         if( Char::hitAny(this,10,CHARTYPE_BULLET) ||
             Char::hitAny(this,10,CHARTYPE_ENEMY) ) {
+            g_shipdie_sound->play();
             loc = Vec2(0,0);
         }
          
@@ -218,7 +223,7 @@ public:
             turn_at = accum_time;            
             if(mad) {
                 float m = 300;
-                v = Vec2(range(-m,m),range(-m,m)) ;
+                v = Vec2(range(-m,m),range(-m,m)) ;                
             } else {
                 Vec2 to_myship = g_myship->loc - loc;
                 v = to_myship.normalize(150);
@@ -226,10 +231,13 @@ public:
         }
         if( mad && accum_time > to_shoot_at ) {
             to_shoot_at = accum_time + range(0.05,0.2);
-            new Bullet(loc,loc.to(g_myship->loc+Vec2(range(-100,100),range(-100,100))).normalize(200));
+            int n = (hp < 3) ? 5 : 1;
+            for(int i=0;i<n;i++) {
+                new Bullet(loc,loc.to(g_myship->loc+Vec2(range(-100,100),range(-100,100))).normalize(200));
+            }
         }
         
-        if( isOutOfScreen() ) { print("out!"); return false; }
+        if( isOutOfScreen() ) { return false; }
         return true;
     }
 };
@@ -292,9 +300,10 @@ void gameUpdate(void) {
 
     ////
     static double last_pop_at = 0;
-    if( last_pop_at < t-2) {
+    if( last_pop_at < t-1) {
         last_pop_at = t;
-        new Enemy( Vec2( range(-SCRW/2,SCRW/2), SCRH/2) );
+        int n = range(0,1) > 0.9 ? 5 : 1;
+        for(int i=0;i<n;i++) new Enemy( Vec2( range(-SCRW/2,SCRW/2), SCRH/2) );
     }
     
     ////
@@ -414,6 +423,7 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_shoot_sound = g_sound_system->newSound( "./sounds/shoot.wav");
     g_enemydie_sound = g_sound_system->newSound( "./sounds/enemydie.wav");
     g_beamhit_sound = g_sound_system->newSound( "./sounds/beamhit.wav");
+    g_shipdie_sound = g_sound_system->newSound( "./sounds/shipdie.wav");
     
     if( headless_mode ) {
         Moyai::globalInitNetwork();
@@ -454,6 +464,11 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_base_deck->setTexture(g_base_atlas);
     g_base_deck->setSize(32,42,24,24 );
 
+    // Status line
+
+    // Score
+    
+    
     
     // Objects
 
