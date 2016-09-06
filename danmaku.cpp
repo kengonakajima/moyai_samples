@@ -140,7 +140,7 @@ public:
         loc += dloc;
         if( loc.x<-SCRW/2+20 )loc.x = -SCRW/2+20;
         if( loc.x>SCRW/2-20 )loc.x = SCRW/2-20;
-        if( loc.y<-SCRH+20 )loc.y = -SCRH/2+20;
+        if( loc.y<-SCRH/2+20 )loc.y = -SCRH/2+20;
         if( loc.y>SCRH/2-20) loc.y = SCRH/2-20;
 
         setIndex( ATLAS_MYSHIP + ((poll_count/4)%2) );
@@ -260,7 +260,7 @@ public:
             }
         }
         if( mad && accum_time > to_shoot_at ) {
-            to_shoot_at = accum_time + range(0.05,0.2);
+            to_shoot_at = accum_time + range(0.1,0.2);
             int n = (hp < 3) ? 5 : 1;
             for(int i=0;i<n;i++) {
                 new Bullet(loc,loc.to(g_myship->loc+Vec2(range(-100,100),range(-100,100))).normalize(200));
