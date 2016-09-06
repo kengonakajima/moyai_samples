@@ -22,6 +22,7 @@ bool g_use_vsync = 1;
 MoyaiClient *g_moyai_client;
 Viewport *g_viewport;
 Layer *g_main_layer;
+Layer *g_effect_layer;
 Texture *g_base_atlas;
 TileDeck *g_base_deck;
 Camera *g_camera;
@@ -189,6 +190,34 @@ public:
     }
 };
 
+class ParticleEffect : public Prop2D {
+public:
+    Vec2 v;
+    double clean_at;
+    ParticleEffect(Vec2 loc,Vec2 iniv) : Prop2D() {
+        float m = 200;
+        v = iniv*0.3 + Vec2( range(-m,m), range(-m,m));
+        clean_at = range(0.1,0.4);
+        setLoc(loc);
+        setDeck(g_base_deck);
+        setIndex(ATLAS_BEAM_PARTICLE);
+        setScl(range(24,48));
+        setColor( Color(1,1,1,range(0.2,1)));
+        g_effect_layer->insertProp(this);
+    }
+    virtual bool prop2DPoll(double dt) {
+        loc += v*dt;
+        if(accum_time>clean_at)return false;
+        return true;
+    }
+    static void create( int n, Vec2 loc, Vec2 v) {
+        for(int i=0;i<n;i++) {
+            new ParticleEffect(loc,v);        
+        }
+    }        
+};
+
+
 
 class Enemy : public Char {
 public:
@@ -208,6 +237,7 @@ public:
         Char *hitchar = Char::hitAny(this,30,CHARTYPE_BEAM);
         if(hitchar) {
             hitchar->to_clean = true;
+            ParticleEffect::create(irange(5,10),hitchar->loc,hitchar->v);
             //            print("hit! this:%p hit:%p hp:%d",this, hitchar,hp);
             g_beamhit_sound->play();
             hp--;
@@ -453,9 +483,14 @@ void gameInit( bool headless_mode, bool enable_spritestream, bool enable_videost
     g_moyai_client->insertLayer(g_main_layer);
     g_main_layer->setViewport(g_viewport);
 
+    g_effect_layer = new Layer();
+    g_moyai_client->insertLayer(g_effect_layer);
+    g_effect_layer->setViewport(g_viewport);
+
     g_camera = new Camera();
     g_camera->setLoc(0,0);
     g_main_layer->setCamera(g_camera);
+    g_effect_layer->setCamera(g_camera);
     
     // atlas
     g_base_atlas = new Texture();
