@@ -186,6 +186,7 @@ public:
         g_main_layer->insertProp(this);
     }
     virtual bool charPoll(double dt) {
+        if( isOutOfScreen() ) { return false; }        
         return true;
     }
 };
