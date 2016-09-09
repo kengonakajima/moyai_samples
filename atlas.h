@@ -8,4 +8,8 @@
 #define ATLAS_ENEMY_ANIMBASE (39*32+9)
 #define ATLAS_ENEMY_BULLET (37*32+9)
 
+#define ATLAS_PIECE_WHITE (37*32+20)
+#define ATLAS_PIECE_BLACK (37*32+21)
+#define ATLAS_GREEN_BG (39*32+19)
+
 #endif
