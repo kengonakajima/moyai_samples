@@ -5,45 +5,6 @@ class Ship;
 Ship *g_myship;
 
 
-//////////////////////////
-
-typedef enum {
-    CHARTYPE_SHIP = 1,
-    CHARTYPE_BEAM = 2,
-    CHARTYPE_ENEMY = 3,
-    CHARTYPE_BULLET = 4,
-} CHARTYPE;
-
-class Char : public Prop2D {
-public:
-    CHARTYPE chartype;
-    Vec2 v;
-    Char( CHARTYPE t ) : Prop2D(), chartype(t) {
-    }
-    virtual bool charPoll(double dt) {return true;}
-    virtual bool prop2DPoll(double dt) {
-        loc += v*dt;
-        return charPoll(dt);
-    }
-    static Char *hitAny(Char *tgt, float r, CHARTYPE hittype ) {
-        Char *cur = (Char*)g_main_layer->prop_top;
-        while(cur) {
-            if( cur->chartype == hittype &&
-                cur != tgt &&
-                cur->to_clean == false &&
-                cur->loc.x > tgt->loc.x-r && cur->loc.x < tgt->loc.x+r &&
-                cur->loc.y > tgt->loc.y-r && cur->loc.y < tgt->loc.y+r ) {
-                return cur;
-            }
-            cur = (Char*)cur->next;
-        }
-        return NULL;
-    }
-    bool isOutOfScreen() {
-        float mgn=50;
-        return ( loc.y < -SCRH/2-mgn || loc.y > SCRH/2+mgn || loc.x < -SCRW/2-mgn || loc.x > SCRW/2+mgn );
-    }    
-};
 
 ///////////////////////
 
