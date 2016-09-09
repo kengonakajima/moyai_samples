@@ -87,5 +87,20 @@ public:
 };
 
 
+#define SAMPLE_COMMON_MAIN_FUNCTION(initfunc,updatefunc)  \
+int main(int argc, char **argv ) { \
+    sampleCommonInit(argc,argv); \
+    initfunc(); \
+    while( !sampleCommonDone() ) { \
+        sampleCommonUpdate(); \
+        updatefunc(); \
+        sampleCommonRender(); \
+    } \
+    sampleCommonFinish(); \
+    print("program finished"); \
+    return 0; \
+}
+
+
 
 #endif

@@ -201,21 +201,4 @@ void danmakuUpdate(void) {
 }
 
 
-
-#if !(TARGET_IPHONE_SIMULATOR ||TARGET_OS_IPHONE)
-
-int main(int argc, char **argv ) {
-    sampleCommonInit(argc,argv);
-        
-    danmakuInit();
-    
-    while( !sampleCommonDone() ) {
-        sampleCommonUpdate();
-        danmakuUpdate();       
-        sampleCommonRender();
-    }
-    sampleCommonFinish();
-    print("program finished");
-    return 0;
-}
-#endif
+SAMPLE_COMMON_MAIN_FUNCTION( danmakuInit, danmakuUpdate );
