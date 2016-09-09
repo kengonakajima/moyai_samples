@@ -187,7 +187,7 @@ void danmakuInit() {
     g_myship = new Ship();
 }
 
-void danmakuUpdate(void) {
+void danmakuUpdate() {
     if( g_keyboard->getKey( GLFW_KEY_SPACE ) ) {
         g_myship->tryShoot();
     }
