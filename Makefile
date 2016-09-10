@@ -8,7 +8,7 @@ LIBFLAGS=moyai/libmoyaicl.a /usr/local/Cellar/libuv/1.8.0/lib/libuv.a moyai/untz
 
 
 
-all : dm rv
+all : dm rv duel
 
 dm : danmaku.cpp sample_common.cpp
 	g++ $(CFLAGS) danmaku.cpp sample_common.cpp $(LIBFLAGS) -o dm
@@ -16,6 +16,9 @@ dm : danmaku.cpp sample_common.cpp
 rv : reversi.cpp sample_common.cpp
 	g++ $(CFLAGS) reversi.cpp sample_common.cpp $(LIBFLAGS) -o rv
 
+duel : duel.cpp sample_common.cpp
+	g++ $(CFLAGS) duel.cpp sample_common.cpp $(LIBFLAGS) -o rv
+
 clean :
-	rm dm rv
+	rm dm rv duel
 
