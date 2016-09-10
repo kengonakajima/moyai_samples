@@ -14,7 +14,7 @@ class Board : public Prop2D {
 public:
     Grid *bg;
     Grid *fg;
-    static const int BLACK=0, WHITE = 1;
+    static const int BLACK=0, WHITE = 1, NONE=Grid::GRID_NOT_USED;
     Board() : Prop2D() {
         setScl(48);
         bg = new Grid(8,8);
@@ -40,7 +40,14 @@ public:
         g_main_layer->insertProp(this);
     }
     void setPiece(int x,int y,int col) {
-        fg->set(x,y,col==WHITE?ATLAS_PIECE_WHITE:ATLAS_PIECE_BLACK);        
+        if(col==NONE) fg->set(x,y,Grid::GRID_NOT_USED); else fg->set(x,y,col==WHITE?ATLAS_PIECE_WHITE:ATLAS_PIECE_BLACK);        
+    }
+    int getPiece(int x, int y) {
+        int ind = fg->get(x,y);
+        if(ind==Grid::GRID_NOT_USED) 
+            return NONE;
+        else
+            return ind == ATLAS_PIECE_WHITE?WHITE : BLACK;
     }
 };
 
@@ -60,24 +67,40 @@ void reverseInit() {
     updateStatusLine();
 }
 void reverseUpdate() {
+    Vec2 mpos = g_mouse->getCursorPos();
+    mpos -= Vec2(SCRW/2,-SCRH/2);
+    mpos.y = SCRH-mpos.y;
+    Vec2 relloc = mpos - g_board->loc;
+    int bx = relloc.x / 48;
+    int by = relloc.y / 48;
+
+    // Left click to put/turn
     if( g_mouse->getToggled(0) ) {
         g_mouse->clearToggled(0);
-        Vec2 mpos = g_mouse->getCursorPos();
-        mpos -= Vec2(SCRW/2,-SCRH/2);
-        mpos.y = SCRH-mpos.y;
-        Vec2 relloc = mpos - g_board->loc;
-        int bx = relloc.x / 48;
-        int by = relloc.y / 48;
         print("mouse 0 press:%f,%f bpos:%d,%d",mpos.x,mpos.y, bx,by);
-
-        if(IS_BLACK_TURN(g_turn)) {
-            g_board->setPiece(bx,by,Board::BLACK);
+        int curcol = g_board->getPiece(bx,by);
+        if( curcol != Board::NONE) {
+            print("turnover:%d",curcol);
+            g_board->setPiece(bx,by, curcol == Board::WHITE ? Board::BLACK : Board::WHITE );
         } else {
-            g_board->setPiece(bx,by,Board::WHITE);
+            print("put new");            
+            int putcol;
+            if(IS_BLACK_TURN(g_turn)) {
+                putcol = Board::BLACK;
+            } else {
+                putcol = Board::WHITE;
+            }
+            g_board->setPiece(bx,by,putcol);
+            g_turn++;
+            updateStatusLine();                    
         }
-        g_turn++;
-        updateStatusLine();        
     }
+    // Right click to clear
+    if( g_mouse->getToggled(1) ) {
+        print("rmousedow");
+        g_mouse->clearToggled(1);
+        g_board->setPiece(bx,by,Board::NONE);
+    }    
 }
 
 
