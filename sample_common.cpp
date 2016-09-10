@@ -9,6 +9,8 @@ Layer *g_main_layer;
 Layer *g_effect_layer;
 Texture *g_base_atlas;
 TileDeck *g_base_deck;
+Texture *g_ascii_atlas;
+TileDeck *g_ascii_deck;
 Camera *g_camera;
 
 
@@ -178,7 +180,12 @@ void sampleCommonInit(int argc, char **argv) {
     g_base_deck = new TileDeck();
     g_base_deck->setTexture(g_base_atlas);
     g_base_deck->setSize(32,42,24,24 );
-    
+
+    g_ascii_atlas = new Texture();                                                                                           
+    g_ascii_atlas->load( "./images/asciibase256.png" );                                                                      
+    g_ascii_deck = new TileDeck();                                                                               
+    g_ascii_deck->setTexture(g_ascii_atlas);
+    g_ascii_deck->setSize( 32,32, 8,8 );
 }
 
 void sampleCommonUpdate() {
@@ -228,7 +235,7 @@ void sampleCommonUpdate() {
 
     if( g_mouse->getButton(0) ) {
         Vec2 cp = g_mouse->getCursorPos();
-        print("mouse button 0 %f,%f", cp.x, cp.y );
+        //        print("mouse button 0 %f,%f", cp.x, cp.y );
     }
 
     ////
@@ -267,3 +274,11 @@ void sampleCommonFinish() {
     glfwTerminate();
 }
 
+
+
+StatusLine::StatusLine() : Prop2D() {
+    setScl(24);
+    cg = new CharGrid(40,1);
+    cg->setDeck(g_ascii_deck);
+    addGrid(cg);
+}

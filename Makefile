@@ -10,11 +10,11 @@ LIBFLAGS=moyai/libmoyaicl.a /usr/local/Cellar/libuv/1.8.0/lib/libuv.a moyai/untz
 
 all : dm rv
 
-dm : danmaku.cpp
+dm : danmaku.cpp sample_common.cpp
 	g++ $(CFLAGS) danmaku.cpp sample_common.cpp $(LIBFLAGS) -o dm
 
-rv : reverse.cpp
-	g++ $(CFLAGS) reverse.cpp sample_common.cpp $(LIBFLAGS) -o rv
+rv : reversi.cpp sample_common.cpp
+	g++ $(CFLAGS) reversi.cpp sample_common.cpp $(LIBFLAGS) -o rv
 
 clean :
 	rm dm rv

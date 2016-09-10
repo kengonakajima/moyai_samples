@@ -27,6 +27,8 @@ extern Layer *g_main_layer;
 extern Layer *g_effect_layer;
 extern Texture *g_base_atlas;
 extern TileDeck *g_base_deck;
+extern Texture *g_ascii_atlas;
+extern TileDeck *g_ascii_deck;
 
 extern Sound *g_shoot_sound;
 extern Sound *g_beamhit_sound;
@@ -102,5 +104,15 @@ int main(int argc, char **argv ) { \
 }
 
 
+class StatusLine : public Prop2D {
+public:
+    CharGrid *cg;
+    StatusLine();
+    CharGrid *GetCharGrid() { return cg; }
+};
 
+
+
+
+    
 #endif
