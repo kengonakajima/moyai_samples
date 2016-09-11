@@ -12,4 +12,6 @@
 #define ATLAS_PIECE_BLACK (37*32+21)
 #define ATLAS_GREEN_BG (39*32+19)
 
+#define ATLAS_GROUND_BLOCK (2*32+4)
+
 #endif

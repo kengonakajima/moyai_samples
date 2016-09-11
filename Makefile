@@ -17,7 +17,7 @@ rv : reversi.cpp sample_common.cpp
 	g++ $(CFLAGS) reversi.cpp sample_common.cpp $(LIBFLAGS) -o rv
 
 duel : duel.cpp sample_common.cpp
-	g++ $(CFLAGS) duel.cpp sample_common.cpp $(LIBFLAGS) -o rv
+	g++ $(CFLAGS) duel.cpp sample_common.cpp $(LIBFLAGS) -o duel
 
 clean :
 	rm dm rv duel
