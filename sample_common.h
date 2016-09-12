@@ -55,6 +55,7 @@ typedef enum {
     CHARTYPE_BEAM = 2,
     CHARTYPE_ENEMY = 3,
     CHARTYPE_BULLET = 4,
+    CHARTYPE_PC = 5,
 } CHARTYPE;
 
 class Char : public Prop2D {

@@ -14,4 +14,7 @@
 
 #define ATLAS_GROUND_BLOCK (2*32+4)
 
+#define ATLAS_PC_RED_BASE (27*32+27)
+#define ATLAS_PC_BLUE_BASE (27*32+28)
+
 #endif

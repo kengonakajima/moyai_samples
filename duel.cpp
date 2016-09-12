@@ -1,7 +1,36 @@
 #include "sample_common.h"
 
 ///////////////////
+class PC;
+PC *g_pcs[2];
 
+class PC : public Char {
+public:
+    int direction; // -1:Left faced, 1:Right faced
+    PC(int faction) : Char(CHARTYPE_PC) {
+        setDeck(g_base_deck);
+        setIndex( factionToBaseIndex(faction));
+        setScl(48);
+        g_main_layer->insertProp(this);
+        direction = (faction==0) ? 1:0;
+    }
+    virtual bool charPoll(double dt) {
+        setXFlip( direction==1 );
+
+        float ymin = -48-24;
+        if(loc.y < ymin) {
+            loc.y = ymin;
+            v.y = 0;
+        } else {
+            float gravity = 1500;
+            v.y -= gravity * dt;
+        }
+        return true;
+    }
+    int factionToBaseIndex(int faction) {
+        return faction==0?ATLAS_PC_RED_BASE:ATLAS_PC_BLUE_BASE;
+    }
+};
 
 
 void duelInit() {
@@ -17,6 +46,13 @@ void duelInit() {
     ground->setScl(48);
     ground->setLoc(-12*48,-8*48);
     g_main_layer->insertProp(ground);
+
+    
+    g_pcs[0] = new PC(0);
+    g_pcs[0]->setLoc( -SCRW/2 + 100, 0 );
+    g_pcs[1] = new PC(1);
+    g_pcs[1]->setLoc( SCRW/2 - 100, 0 );    
+    
 }
 void duelUpdate() {
 }
