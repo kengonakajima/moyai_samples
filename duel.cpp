@@ -7,12 +7,14 @@ PC *g_pcs[2];
 class PC : public Char {
 public:
     int direction; // -1:Left faced, 1:Right faced
+    bool jumping;
     PC(int faction) : Char(CHARTYPE_PC) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
         setScl(48);
         g_main_layer->insertProp(this);
         direction = (faction==0) ? 1:0;
+        jumping = false;
     }
     virtual bool charPoll(double dt) {
         setXFlip( direction==1 );
@@ -21,6 +23,7 @@ public:
         if(loc.y < ymin) {
             loc.y = ymin;
             v.y = 0;
+            onLand();
         } else {
             float gravity = 1500;
             v.y -= gravity * dt;
@@ -29,6 +32,15 @@ public:
     }
     int factionToBaseIndex(int faction) {
         return faction==0?ATLAS_PC_RED_BASE:ATLAS_PC_BLUE_BASE;
+    }
+    void tryJump() {
+        if( jumping == false ) {
+            jumping = true;
+            v.y = 500;
+        }
+    }
+    void onLand() {
+        jumping = false;
     }
 };
 
@@ -55,5 +67,8 @@ void duelInit() {
     
 }
 void duelUpdate() {
+    if( g_keyboard->getKey(' ')) {
+        g_pcs[0]->tryJump();
+    }
 }
 SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate);
