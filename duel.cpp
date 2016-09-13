@@ -24,7 +24,10 @@ public:
         if(iniv.x<0) setXFlip(true);
         g_main_layer->insertProp(this);        
     }
+    virtual bool charPoll(double dt);
 };
+
+
 class ChargeParticle : public Prop2D {
 public:
     Char *tgt;
@@ -52,6 +55,7 @@ public:
     double charge_sound_at;
     int charge_count;
     double invincible_until;
+    Vec2 tmpv;
     PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0), charge_count(0), invincible_until(2) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
@@ -84,6 +88,10 @@ public:
         }
         setIndex(ind);
 
+        // 
+        loc += tmpv * dt;
+        tmpv *= 0.8;
+        
         return true;
     }
     int factionToBaseIndex(int faction) {
@@ -122,6 +130,9 @@ public:
         if(xdir<0) direction = -1;
         if(xdir>0) direction = 1;
     }
+    void addKnockBack(Vec2 k) {
+        tmpv += k;
+    }
 };
 
 
@@ -141,9 +152,9 @@ void duelInit() {
 
     
     g_pcs[0] = new PC(0);
-    g_pcs[0]->setLoc( -SCRW/2 + 100, 0 );
+    g_pcs[0]->setLoc( -SCRW/2 + 400, 0 );
     g_pcs[1] = new PC(1);
-    g_pcs[1]->setLoc( SCRW/2 - 100, 0 );    
+    g_pcs[1]->setLoc( SCRW/2 - 400, 0 );    
     
 }
 void duelUpdate() {
@@ -164,6 +175,20 @@ void duelUpdate() {
         xd=0;
     }
     g_pcs[0]->walk(xd);
+}
+
+
+bool Beam::charPoll(double dt) {
+    int hit_pc_ind = faction==0?1:0;
+            
+    if(g_pcs[hit_pc_ind]->loc.len(loc) < 20) {
+        g_enemydie_sound->play();
+        Vec2 kbv;
+        kbv.x = (v.x>0?1.0f:-1.0f) * (power * power)/4;
+        g_pcs[hit_pc_ind]->addKnockBack(kbv);
+        return false;
+    }
+    return true;
 }
 
 
