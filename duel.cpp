@@ -97,14 +97,15 @@ public:
         jumping = false;
     }
     void tryShoot() {
-        if(charge_count>10) {
+        if(charge_count>0) {
             Vec2 iniv(direction*500,0);
             new Beam(faction,loc,iniv,charge_count);
             charge_count=0;
             g_shootbig_sound->play();
-        } else {
-            charge_count = 0;
         }
+    }
+    void walk(int xdir ) { // xdir: -1:left 1:right
+        v.x = xdir * 400;
     }
 };
 
@@ -139,5 +140,16 @@ void duelUpdate() {
     } else {
         g_pcs[0]->tryShoot();
     }
+    int xd=0;
+    if( g_keyboard->getKey('A')) {
+        xd=-1;
+    } else if( g_keyboard->getKey('D')) {
+        xd=1;
+    } else {
+        xd=0;
+    }
+    g_pcs[0]->walk(xd);
 }
+
+
 SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate);
