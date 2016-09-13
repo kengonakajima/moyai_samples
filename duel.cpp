@@ -12,6 +12,7 @@ public:
     int faction;
     int power;
     Beam(int faction,Vec2 iniloc, Vec2 iniv, int power ) : Char(CHARTYPE_BEAM), faction(faction), power(power) {
+        if(power>150)power=150;
         setLoc(loc);
         setLoc(iniloc);
         v = iniv;
@@ -61,8 +62,12 @@ public:
         setIndex( factionToBaseIndex(faction));
         setScl(48);
         g_main_layer->insertProp(this);
-        direction = (faction==0) ? 1:0;
+        direction = (faction==0) ? 1:0;        
         jumping = false;
+        initLoc();
+    }
+    void initLoc() {
+        setLoc( (SCRW/2 - 400) * (faction==0?-1:1), 0 );    
     }
     virtual bool charPoll(double dt) {
         setXFlip( direction==1 );
@@ -91,7 +96,14 @@ public:
         // 
         loc += tmpv * dt;
         tmpv *= 0.8;
-        
+
+        float mgn = 20; 
+        if( loc.x < -SCRW/2-mgn || loc.x > SCRW/2+mgn ) {
+            initLoc();
+            v*=0;
+            tmpv*=0;
+            invincible_until = accum_time+2;
+        }
         return true;
     }
     int factionToBaseIndex(int faction) {
@@ -152,9 +164,7 @@ void duelInit() {
 
     
     g_pcs[0] = new PC(0);
-    g_pcs[0]->setLoc( -SCRW/2 + 400, 0 );
     g_pcs[1] = new PC(1);
-    g_pcs[1]->setLoc( SCRW/2 - 400, 0 );    
     
 }
 void duelUpdate() {
@@ -184,7 +194,7 @@ bool Beam::charPoll(double dt) {
     if(g_pcs[hit_pc_ind]->loc.len(loc) < 20) {
         g_enemydie_sound->play();
         Vec2 kbv;
-        kbv.x = (v.x>0?1.0f:-1.0f) * (power * power)/4;
+        kbv.x = (v.x>0?1.0f:-1.0f) * (power * power)/6;
         g_pcs[hit_pc_ind]->addKnockBack(kbv);
         return false;
     }
