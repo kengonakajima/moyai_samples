@@ -1,6 +1,9 @@
 #include "sample_common.h"
 
 ///////////////////
+
+
+
 class PC;
 PC *g_pcs[2];
 
@@ -18,14 +21,32 @@ public:
         g_main_layer->insertProp(this);        
     }
 };
-
+class ChargeParticle : public Prop2D {
+public:
+    Char *tgt;
+    ChargeParticle(Vec2 loc,Char *tgt) : Prop2D(), tgt(tgt) {
+        setLoc(loc);
+        setDeck(g_base_deck);
+        setIndex(ATLAS_BEAM_PARTICLE);
+        setColor( Color(1,1,1,range(0.5,1)));
+        setScl( range(16,48));
+        g_effect_layer->insertProp(this);
+    }
+    virtual bool prop2DPoll(double dt) {
+        Vec2 d = tgt->loc - loc;
+        loc += d * dt *5;
+        if( d.len() < 12 )return false;
+        return true;
+    }
+};
 
 class PC : public Char {
 public:
     int faction;
     int direction; // -1:Left faced, 1:Right faced
     bool jumping;
-    PC(int faction) : Char(CHARTYPE_PC), faction(faction) {
+    double charge_sound_at;
+    PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
         setScl(48);
@@ -49,6 +70,16 @@ public:
     }
     int factionToBaseIndex(int faction) {
         return faction==0?ATLAS_PC_RED_BASE:ATLAS_PC_BLUE_BASE;
+    }
+    void charge() {
+        float r = 100;
+        Vec2 dif( range(-1,1),range(-1,1));
+        Vec2 at = loc+dif.normalize( range(r*0.5,r));
+        new ChargeParticle(at,this);
+        if( charge_sound_at < accum_time - 0.5 ) {
+            g_charge_sound->play(0.4);
+            charge_sound_at = accum_time;
+        }
     }
     void tryJump() {
         if( jumping == false ) {
@@ -92,7 +123,7 @@ void duelUpdate() {
         g_pcs[0]->tryJump();
     }
     if( g_keyboard->getKey(' ')) {
-        g_pcs[0]->tryShoot();
+        g_pcs[0]->charge();
     }
 }
 SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate);
