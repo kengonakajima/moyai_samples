@@ -51,7 +51,8 @@ public:
     bool jumping;
     double charge_sound_at;
     int charge_count;
-    PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0), charge_count(0) {
+    double invincible_until;
+    PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0), charge_count(0), invincible_until(2) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
         setScl(48);
@@ -70,6 +71,12 @@ public:
         } else {
             float gravity = 1500;
             v.y -= gravity * dt;
+        }
+        if( invincible_until > accum_time ) {
+            float a = (poll_count/5)%2;
+            setColor(Color(1,1,1,a) );
+        } else {
+            setColor(Color(1,1,1,1));
         }
         return true;
     }
