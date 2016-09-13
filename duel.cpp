@@ -10,13 +10,17 @@ PC *g_pcs[2];
 class Beam : public Char {
 public:
     int faction;
-    Beam(int faction,Vec2 iniloc, Vec2 iniv ) : Char(CHARTYPE_BEAM), faction(faction){
+    int power;
+    Beam(int faction,Vec2 iniloc, Vec2 iniv, int power ) : Char(CHARTYPE_BEAM), faction(faction), power(power) {
         setLoc(loc);
         setLoc(iniloc);
         v = iniv;
         setDeck(g_base_deck);
         setIndex(ATLAS_BEAM);
-        setScl(48);
+        float s = 16 + power;
+        if(s>120)s=120;
+        print("power:%d scl:%f",power,s);
+        setScl(s);
         if(iniv.x<0) setXFlip(true);
         g_main_layer->insertProp(this);        
     }
@@ -46,7 +50,8 @@ public:
     int direction; // -1:Left faced, 1:Right faced
     bool jumping;
     double charge_sound_at;
-    PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0) {
+    int charge_count;
+    PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0), charge_count(0) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
         setScl(48);
@@ -80,6 +85,7 @@ public:
             g_charge_sound->play(0.4);
             charge_sound_at = accum_time;
         }
+        charge_count++;
     }
     void tryJump() {
         if( jumping == false ) {
@@ -91,8 +97,14 @@ public:
         jumping = false;
     }
     void tryShoot() {
-        Vec2 iniv(direction*500,0);
-        new Beam(faction,loc,iniv);
+        if(charge_count>10) {
+            Vec2 iniv(direction*500,0);
+            new Beam(faction,loc,iniv,charge_count);
+            charge_count=0;
+            g_shootbig_sound->play();
+        } else {
+            charge_count = 0;
+        }
     }
 };
 
@@ -124,6 +136,8 @@ void duelUpdate() {
     }
     if( g_keyboard->getKey(' ')) {
         g_pcs[0]->charge();
+    } else {
+        g_pcs[0]->tryShoot();
     }
 }
 SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate);
