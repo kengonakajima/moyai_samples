@@ -104,6 +104,16 @@ public:
             tmpv*=0;
             invincible_until = accum_time+2;
         }
+        if(v.x!=0) {
+            int hit_pc_ind = faction ? 0 : 1;
+            if(g_pcs[hit_pc_ind]->loc.len(loc)<30) {
+                g_pcs[hit_pc_ind]->addKnockBack(Vec2(v.x*0.3,0));
+                tmpv = -v;
+            }
+        }
+        
+
+       
         return true;
     }
     int factionToBaseIndex(int faction) {
