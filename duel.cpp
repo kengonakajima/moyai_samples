@@ -78,6 +78,12 @@ public:
         } else {
             setColor(Color(1,1,1,1));
         }
+        int ind = factionToBaseIndex(faction);
+        if(v.x!=0) {
+            ind += (poll_count/4)%2;
+        }
+        setIndex(ind);
+
         return true;
     }
     int factionToBaseIndex(int faction) {
@@ -88,7 +94,7 @@ public:
         Vec2 dif( range(-1,1),range(-1,1));
         Vec2 at = loc+dif.normalize( range(r*0.5,r));
         new ChargeParticle(at,this);
-        if( charge_sound_at < accum_time - 0.5 ) {
+        if( charge_sound_at < accum_time - 0.1 ) {
             g_charge_sound->play(0.4);
             charge_sound_at = accum_time;
         }
@@ -112,7 +118,9 @@ public:
         }
     }
     void walk(int xdir ) { // xdir: -1:left 1:right
-        v.x = xdir * 400;
+        v.x = xdir * 300;
+        if(xdir<0) direction = -1;
+        if(xdir>0) direction = 1;
     }
 };
 
