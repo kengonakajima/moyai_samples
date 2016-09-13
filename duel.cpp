@@ -4,11 +4,28 @@
 class PC;
 PC *g_pcs[2];
 
+class Beam : public Char {
+public:
+    int faction;
+    Beam(int faction,Vec2 iniloc, Vec2 iniv ) : Char(CHARTYPE_BEAM), faction(faction){
+        setLoc(loc);
+        setLoc(iniloc);
+        v = iniv;
+        setDeck(g_base_deck);
+        setIndex(ATLAS_BEAM);
+        setScl(48);
+        if(iniv.x<0) setXFlip(true);
+        g_main_layer->insertProp(this);        
+    }
+};
+
+
 class PC : public Char {
 public:
+    int faction;
     int direction; // -1:Left faced, 1:Right faced
     bool jumping;
-    PC(int faction) : Char(CHARTYPE_PC) {
+    PC(int faction) : Char(CHARTYPE_PC), faction(faction) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
         setScl(48);
@@ -42,6 +59,10 @@ public:
     void onLand() {
         jumping = false;
     }
+    void tryShoot() {
+        Vec2 iniv(direction*500,0);
+        new Beam(faction,loc,iniv);
+    }
 };
 
 
@@ -67,8 +88,11 @@ void duelInit() {
     
 }
 void duelUpdate() {
-    if( g_keyboard->getKey(' ')) {
+    if( g_keyboard->getKey('W')) {
         g_pcs[0]->tryJump();
+    }
+    if( g_keyboard->getKey(' ')) {
+        g_pcs[0]->tryShoot();
     }
 }
 SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate);
