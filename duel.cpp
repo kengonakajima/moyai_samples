@@ -178,23 +178,24 @@ void duelInit() {
     
 }
 void duelUpdate() {
-    if( g_keyboard->getKey('W')) {
-        g_pcs[0]->tryJump();
+    for(int i=0;i<2;i++) {
+        if( g_keyboards[i]->getKey('W')) g_pcs[i]->tryJump();
+        if( g_keyboards[i]->getKey(' ')) {
+            g_pcs[i]->charge();
+        } else {
+            g_pcs[i]->tryShoot();
+        }
+
+        int xd=0;
+        if( g_keyboards[i]->getKey('A')) {
+            xd=-1;
+        } else if( g_keyboards[i]->getKey('D')) {
+            xd=1;
+        } else {
+            xd=0;
+        }
+        g_pcs[i]->walk(xd);
     }
-    if( g_keyboard->getKey(' ')) {
-        g_pcs[0]->charge();
-    } else {
-        g_pcs[0]->tryShoot();
-    }
-    int xd=0;
-    if( g_keyboard->getKey('A')) {
-        xd=-1;
-    } else if( g_keyboard->getKey('D')) {
-        xd=1;
-    } else {
-        xd=0;
-    }
-    g_pcs[0]->walk(xd);
 }
 
 

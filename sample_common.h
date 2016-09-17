@@ -37,7 +37,7 @@ extern Sound *g_shipdie_sound;
 extern Sound *g_charge_sound;
 extern Sound *g_shootbig_sound;
 
-extern Keyboard *g_keyboard;
+extern Keyboard *g_keyboards[2];
 extern Mouse *g_mouse;
 extern Pad *g_pad;
 

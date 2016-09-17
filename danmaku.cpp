@@ -188,7 +188,7 @@ void danmakuInit() {
 }
 
 void danmakuUpdate() {
-    if( g_keyboard->getKey( GLFW_KEY_SPACE ) ) {
+    if( g_keyboards[0]->getKey( GLFW_KEY_SPACE ) ) {
         g_myship->tryShoot();
     }
     ////

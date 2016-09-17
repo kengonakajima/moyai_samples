@@ -31,7 +31,7 @@ GLFWwindow *g_window;
 
 bool g_game_done = false;
 
-Keyboard *g_keyboard;
+Keyboard *g_keyboards[2]; // Duel uses 2 keyboards
 Mouse *g_mouse;
 Pad *g_pad;
 
@@ -51,8 +51,8 @@ void fbsizeCallback( GLFWwindow *window, int w, int h ) {
 }
 
 
-void keyboardCallback( GLFWwindow *window, int key, int scancode, int action, int mods ) {
-    g_keyboard->update( key, action, mods & GLFW_MOD_SHIFT, mods & GLFW_MOD_CONTROL, mods & GLFW_MOD_ALT );
+void localKeyboardCallback( GLFWwindow *window, int key, int scancode, int action, int mods ) {
+    g_keyboards[0]->update( key, action, mods & GLFW_MOD_SHIFT, mods & GLFW_MOD_CONTROL, mods & GLFW_MOD_ALT );
 }
 void mouseButtonCallback( GLFWwindow *window, int button, int action, int mods ) {
     g_mouse->updateButton( button, action, mods & GLFW_MOD_SHIFT, mods & GLFW_MOD_CONTROL, mods & GLFW_MOD_ALT );
@@ -65,7 +65,9 @@ void onConnectCallback( RemoteHead *rh, Client *cl) {
 }
 
 void onRemoteKeyboardCallback( Client *cl, int kc, int act, int modshift, int modctrl, int modalt ) {
-    g_keyboard->update(kc,act,modshift,modctrl,modalt);
+    int kbd_index = cl->id % 2;
+    print("onRemoteKeyboardCallback: ind:%d kc:%d",kbd_index,kc);
+    g_keyboards[kbd_index]->update(kc,act,modshift,modctrl,modalt);
 }
 void onRemoteMouseButtonCallback( Client *cl, int btn, int act, int modshift, int modctrl, int modalt ) {
     g_mouse->updateButton( btn, act, modshift, modctrl, modalt );
@@ -121,8 +123,9 @@ void sampleCommonInit(int argc, char **argv) {
     glClearColor(0.2,0.2,0.2,1);
 
     // controls
-    g_keyboard = new Keyboard();
-    glfwSetKeyCallback( g_window, keyboardCallback );
+    g_keyboards[0] = new Keyboard();
+    g_keyboards[1] = new Keyboard();    
+    glfwSetKeyCallback( g_window, localKeyboardCallback );
     g_mouse = new Mouse();
     glfwSetMouseButtonCallback( g_window, mouseButtonCallback );
     glfwSetCursorPosCallback( g_window, cursorPosCallback );
@@ -194,7 +197,7 @@ void sampleCommonInit(int argc, char **argv) {
 
 void sampleCommonUpdate() {
     glfwPollEvents();            
-    g_pad->readKeyboard(g_keyboard);
+    g_pad->readKeyboard(g_keyboards[0]);
 
     static double last_print_at = 0;
     static int frame_counter = 0;
@@ -209,7 +212,7 @@ void sampleCommonUpdate() {
     frame_counter ++;
     total_frame ++;    
 
-    if( g_keyboard->getKey('C') ) {
+    if( g_keyboards[0]->getKey('C') ) {
         Image *img = new Image();
         img->setSize( SCRW*RETINA, SCRH*RETINA );
         double st = now();
@@ -227,13 +230,13 @@ void sampleCommonUpdate() {
     }
 
 
-    if( g_keyboard->getKey( 'Q') ) {
+    if( g_keyboards[0]->getKey( 'Q') ) {
         print("Q pressed");
         g_game_done = true;
         return;
     }
 
-    if( g_keyboard->getKey( 'Y' ) ) {
+    if( g_keyboards[0]->getKey( 'Y' ) ) {
         g_moyai_client->batch_list.dump();
     }
 
