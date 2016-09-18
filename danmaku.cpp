@@ -201,4 +201,4 @@ void danmakuUpdate() {
 }
 
 
-SAMPLE_COMMON_MAIN_FUNCTION( danmakuInit, danmakuUpdate );
+SAMPLE_COMMON_MAIN_FUNCTION( danmakuInit, danmakuUpdate, "danmaku" );

@@ -80,7 +80,7 @@ bool sampleCommonDone() {
     return glfwWindowShouldClose(g_window) ||g_game_done;
 }
 
-void sampleCommonInit(int argc, char **argv) {
+void sampleCommonInit(int argc, char **argv, const char *title ) {
     bool headless_mode=false, enable_videostream=false, enable_spritestream=true;
     for(int i=0;;i++) {
         if(!argv[i])break;
@@ -89,7 +89,7 @@ void sampleCommonInit(int argc, char **argv) {
         if(strcmp(argv[i], "--skip-spritestream") == 0 ) enable_spritestream = false;
     }
 
-    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d", headless_mode, enable_spritestream, enable_videostream );
+    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d title:%s", headless_mode, enable_spritestream, enable_videostream, title );
 
 
 #ifdef __APPLE__    
@@ -107,7 +107,7 @@ void sampleCommonInit(int argc, char **argv) {
     }
 
     glfwSetErrorCallback( glfw_error_cb );
-    g_window =  glfwCreateWindow( SCRW, SCRH, "danmaku", NULL, NULL );
+    g_window =  glfwCreateWindow( SCRW, SCRH, title, NULL, NULL );
     if(g_window == NULL ) {
         print("can't open glfw window");
         glfwTerminate();

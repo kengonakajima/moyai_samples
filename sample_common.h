@@ -43,7 +43,7 @@ extern Pad *g_pad;
 
 extern const int SCRW, SCRH;
 
-void sampleCommonInit(int argc, char**argv);
+void sampleCommonInit(int argc, char**argv, const char*title);
 bool sampleCommonDone();
 void sampleCommonUpdate();
 void sampleCommonRender();
@@ -92,9 +92,9 @@ public:
 };
 
 
-#define SAMPLE_COMMON_MAIN_FUNCTION(initfunc,updatefunc)  \
+#define SAMPLE_COMMON_MAIN_FUNCTION(initfunc,updatefunc,title)   \
 int main(int argc, char **argv ) { \
-    sampleCommonInit(argc,argv); \
+    sampleCommonInit(argc,argv,title);          \
     initfunc(); \
     while( !sampleCommonDone() ) { \
         sampleCommonUpdate(); \

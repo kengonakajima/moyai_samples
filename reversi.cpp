@@ -104,4 +104,4 @@ void reverseUpdate() {
 }
 
 
-SAMPLE_COMMON_MAIN_FUNCTION(reverseInit,reverseUpdate);
+SAMPLE_COMMON_MAIN_FUNCTION(reverseInit,reverseUpdate,"reversi");

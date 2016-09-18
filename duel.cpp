@@ -213,4 +213,4 @@ bool Beam::charPoll(double dt) {
 }
 
 
-SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate);
+SAMPLE_COMMON_MAIN_FUNCTION(duelInit,duelUpdate, "duel");
