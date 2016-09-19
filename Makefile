@@ -20,7 +20,7 @@ duel : duel.cpp sample_common.cpp
 	g++ $(CFLAGS) duel.cpp sample_common.cpp $(LIBFLAGS) -o duel
 
 bench : bench.cpp sample_common.cpp
-	g++ $(CFLAGS) bench.cpp sample_common.cpp $(LIBFLAGS) -o duel
+	g++ $(CFLAGS) bench.cpp sample_common.cpp $(LIBFLAGS) -o bench
 
 clean :
 	rm dm rv duel
