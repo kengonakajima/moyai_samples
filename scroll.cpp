@@ -77,12 +77,30 @@ Chunk *allocateChunk(int chx, int chy) {
     Chunk *chk = new Chunk(chx,chy);
     return chk;
 }
+void updateChunks() {
+    Vec2 center = g_pc->loc;
+    float chunksz = Chunk::SZ*48;
+    Vec2 minloc = center - Vec2(SCRW/2+chunksz,SCRH/2+chunksz);
+    Vec2 maxloc = center + Vec2(SCRW/2+chunksz,SCRH/2+chunksz);
+    int minchy = (int)(minloc.y / chunksz), minchx = (int)(minloc.x / chunksz);
+    int maxchy = (int)(maxloc.y / chunksz), maxchx = (int)(maxloc.x / chunksz);
+    //    print("chkrange: %d %d %d %d", minchx, minchy, maxchx, maxchy);
+
+    for(int chy=minchy;chy<=maxchy;chy++) {
+        for(int chx=minchx;chx<=maxchx;chx++) {
+            if(chy<0||chx<0)continue;
+            if(chx>=CHUNKNUM||chy>=CHUNKNUM)continue;
+            if(g_chunks[chy][chx]==NULL) g_chunks[chy][chx] = new Chunk(chx,chy);
+        }
+    }
+}
 
 void initField() {
     for(int y=0;y<FIELDSIZE;y++) {
         for(int x=0;x<FIELDSIZE;x++) {
+            g_field[y][x] = Grid::GRID_NOT_USED;
             if( range(0,1) < 0.05 ) g_field[y][x] = ATLAS_GROUND_ROCK;
-            if(y==0||y==(FIELDSIZE-1)||x==0||(x==FIELDSIZE-1) ) g_field[y][x] = ATLAS_GROUND_BLOCK; else g_field[y][x] = Grid::GRID_NOT_USED;
+            if(y==0||y==(FIELDSIZE-1)||x==0||(x==FIELDSIZE-1) ) g_field[y][x] = ATLAS_GROUND_BLOCK;
         }
     }
 }
@@ -102,6 +120,8 @@ void scrollInit() {
 }
 void scrollUpdate() {
     g_camera->setLoc(g_pc->loc);
+
+    updateChunks();
 }
 
 SAMPLE_COMMON_MAIN_FUNCTION(scrollInit,scrollUpdate, "scroll");
