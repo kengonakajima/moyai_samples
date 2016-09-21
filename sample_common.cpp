@@ -32,8 +32,9 @@ GLFWwindow *g_window;
 bool g_game_done = false;
 
 Keyboard *g_keyboards[2]; // Duel uses 2 keyboards
-Mouse *g_mouse;
 Pad *g_pad;
+Mouse *g_mouse;
+
 
 
 const int SCRW=1024, SCRH=640;
@@ -195,10 +196,15 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
     g_ascii_deck->setSize( 32,32, 8,8 );
 }
 
+int getFirstClientIndex() {
+    Client *cl = g_rh->getFirstClient();
+    if(cl) return cl->id % 2; else return 0;
+}
+    
 void sampleCommonUpdate() {
-    glfwPollEvents();            
-    g_pad->readKeyboard(g_keyboards[0]);
-
+    glfwPollEvents();    
+    g_pad->readKeyboard(g_keyboards[getFirstClientIndex()]);
+    
     static double last_print_at = 0;
     static int frame_counter = 0;
     static int total_frame = 0;

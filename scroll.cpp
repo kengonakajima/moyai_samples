@@ -104,6 +104,24 @@ void initField() {
         }
     }
 }
+
+void updateZoom() {
+    float minzoom = 0.5, maxzoom = 2;
+    static float zoom_rate = 1;
+    
+    if(g_mouse->getButton(0)) {
+        zoom_rate -= 0.05;
+        if( zoom_rate < minzoom ) zoom_rate = minzoom;
+    }
+    if(g_mouse->getButton(1)) {
+        zoom_rate += 0.05;
+        if( zoom_rate > maxzoom ) zoom_rate = maxzoom;
+    }
+    g_viewport->setScale2D( SCRW / zoom_rate, SCRH / zoom_rate );
+    
+}
+
+
 void scrollInit() {
 
     initField();
@@ -120,7 +138,7 @@ void scrollInit() {
 }
 void scrollUpdate() {
     g_camera->setLoc(g_pc->loc);
-
+    updateZoom();
     updateChunks();
 }
 

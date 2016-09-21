@@ -22,7 +22,7 @@
 #include "moyai/client.h"
 
 
-
+extern Viewport *g_viewport;
 extern Camera *g_camera;
 extern Layer *g_main_layer;
 extern Layer *g_effect_layer;
