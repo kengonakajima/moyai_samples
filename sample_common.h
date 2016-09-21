@@ -23,6 +23,7 @@
 
 
 
+extern Camera *g_camera;
 extern Layer *g_main_layer;
 extern Layer *g_effect_layer;
 extern Texture *g_base_atlas;
