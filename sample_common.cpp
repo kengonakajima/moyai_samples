@@ -197,6 +197,7 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
 }
 
 int getFirstClientIndex() {
+    if(!g_rh)return 0;
     Client *cl = g_rh->getFirstClient();
     if(cl) return cl->id % 2; else return 0;
 }
