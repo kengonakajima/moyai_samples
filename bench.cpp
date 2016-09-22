@@ -20,9 +20,10 @@ public:
 };
 
 void benchInit() {
+    new Enemy(); // At least one sprite is necessary to send File and TileDeck first
 }
 void benchUpdate() {
-    for(int i=0;i<10;i++) new Enemy();
+    if( g_mouse->getButton(0) ) for(int i=0;i<10;i++) new Enemy();
 }
 
 SAMPLE_COMMON_MAIN_FUNCTION(benchInit,benchUpdate,"bench");
