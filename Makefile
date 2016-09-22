@@ -8,7 +8,10 @@ LIBFLAGS=moyai/libmoyaicl.a /usr/local/Cellar/libuv/1.8.0/lib/libuv.a moyai/untz
 
 
 
-all : dm rv duel bench scroll
+all : min dm rv duel bench scroll
+
+min : min.cpp sample_common.cpp
+	g++ $(CFLAGS) min.cpp sample_common.cpp $(LIBFLAGS) -o min
 
 dm : danmaku.cpp sample_common.cpp
 	g++ $(CFLAGS) danmaku.cpp sample_common.cpp $(LIBFLAGS) -o dm
@@ -26,5 +29,5 @@ scroll : scroll.cpp sample_common.cpp
 	g++ $(CFLAGS) scroll.cpp sample_common.cpp $(LIBFLAGS) -o scroll
 
 clean :
-	rm dm rv duel bench scroll
+	rm min dm rv duel bench scroll
 
