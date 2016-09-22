@@ -52,7 +52,7 @@ public:
 };
 
 void updateStatusLine() {
-    CharGrid *cg = g_statusline->GetCharGrid();
+    CharGrid *cg = g_statusline->getCharGrid();
     cg->printf(0,0,Color(1,1,1,1), IS_BLACK_TURN(g_turn) ? "NEXT: BLACK" : "NEXT: WHITE" );    
 }
 

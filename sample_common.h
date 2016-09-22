@@ -112,7 +112,7 @@ class StatusLine : public Prop2D {
 public:
     CharGrid *cg;
     StatusLine();
-    CharGrid *GetCharGrid() { return cg; }
+    CharGrid *getCharGrid() { return cg; }
 };
 
 

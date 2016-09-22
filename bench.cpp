@@ -1,5 +1,7 @@
 #include "sample_common.h"
 
+StatusLine *g_statusline;
+
 class Enemy : public Prop2D {
 public:
     Vec2 v;
@@ -21,9 +23,16 @@ public:
 
 void benchInit() {
     new Enemy(); // At least one sprite is necessary to send File and TileDeck first
+    g_statusline = new StatusLine();
+    g_statusline->setLoc(-SCRW/2+50,SCRH/2-50);
+    g_effect_layer->insertProp(g_statusline);
 }
+
 void benchUpdate() {
     if( g_mouse->getButton(0) ) for(int i=0;i<10;i++) new Enemy();
+
+    CharGrid *cg = g_statusline->getCharGrid();
+    cg->printf(0,0,Color(1,1,1,1), "Sprite: %d", g_main_layer->countProps());
 }
 
 SAMPLE_COMMON_MAIN_FUNCTION(benchInit,benchUpdate,"bench");
