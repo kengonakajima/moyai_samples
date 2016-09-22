@@ -26,5 +26,5 @@ scroll : scroll.cpp sample_common.cpp
 	g++ $(CFLAGS) scroll.cpp sample_common.cpp $(LIBFLAGS) -o scroll
 
 clean :
-	rm dm rv duel
+	rm dm rv duel bench scroll
 
