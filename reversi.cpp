@@ -61,7 +61,7 @@ void reverseInit() {
     g_board = new Board();
 
     g_statusline = new StatusLine();
-    g_statusline->setLoc(SCRW/2-300,SCRH/2-100);
+    g_statusline->setLoc(SCRW/2-300,SCRH/2-24);
     g_effect_layer->insertProp(g_statusline);
 
     updateStatusLine();
