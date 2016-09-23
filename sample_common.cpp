@@ -37,7 +37,7 @@ Mouse *g_mouse;
 
 
 
-const int SCRW=1024, SCRH=640;
+const int SCRW=800, SCRH=450;
 
 void winclose_callback( GLFWwindow *w ){
     exit(0);
