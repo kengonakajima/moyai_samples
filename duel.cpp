@@ -67,7 +67,7 @@ public:
         initLoc();
     }
     void initLoc() {
-        setLoc( (SCRW/2 - 400) * (faction==0?-1:1), 0 );    
+        setLoc( (SCRW/2 - 200) * (faction==0?-1:1), 0 );    
     }
     virtual bool charPoll(double dt) {
         setXFlip( direction==1 );
