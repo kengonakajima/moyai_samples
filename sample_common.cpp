@@ -82,14 +82,22 @@ bool sampleCommonDone() {
 }
 
 void sampleCommonInit(int argc, char **argv, const char *title ) {
-    bool headless_mode=false, enable_videostream=false, enable_spritestream=true;
+    bool headless_mode=false, enable_videostream=false, enable_spritestream=false;
     for(int i=0;;i++) {
         if(!argv[i])break;
-        if(strcmp(argv[i], "--headless") == 0 ) headless_mode = true;
-        if(strcmp(argv[i], "--videostream") == 0 ) enable_videostream = true;
-        if(strcmp(argv[i], "--skip-spritestream") == 0 ) enable_spritestream = false;
+        if(strcmp(argv[i], "--videostream") == 0 || strcmp(argv[i],"--vs")==0 ) {
+            headless_mode = true;
+            enable_videostream = true;
+        }
+        if(strcmp(argv[i], "--spritestream") == 0 || strcmp(argv[i],"--ss")==0 ) {
+            headless_mode = true;
+            enable_spritestream = true;
+        }
     }
-
+    if( headless_mode && enable_spritestream==false && enable_videostream == false ) {
+        print("headless mode with no stream setting. add --videostream or --spritestream");
+        exit(1);
+    }
     print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d title:%s", headless_mode, enable_spritestream, enable_videostream, title );
 
 
