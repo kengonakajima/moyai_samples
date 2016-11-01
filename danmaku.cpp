@@ -4,7 +4,7 @@
 class Ship;
 Ship *g_myship;
 
-
+void clearAllEnemies();
 
 ///////////////////////
 
@@ -55,6 +55,7 @@ public:
             Char::hitAny(this,10,CHARTYPE_ENEMY) ) {
             g_shipdie_sound->play();
             loc = Vec2(0,0);
+            clearAllEnemies();
         }
          
         return true;
@@ -179,6 +180,16 @@ public:
     }
 };
 
+void clearAllEnemies() {
+    Prop *cur = g_main_layer->prop_top;
+    while(cur) {
+        Char *ch = (Char*)cur;
+        if(ch->chartype==CHARTYPE_ENEMY || ch->chartype == CHARTYPE_BULLET ) {
+            ch->to_clean = true;
+        }
+        cur = cur->next;
+    }
+}
 
 ////////////////////////////
 
