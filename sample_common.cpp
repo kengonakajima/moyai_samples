@@ -69,7 +69,7 @@ void onConnectCallback( RemoteHead *rh, Client *cl) {
 
 void onRemoteKeyboardCallback( Client *cl, int kc, int act, int modshift, int modctrl, int modalt ) {
     int kbd_index = cl->id % 2;
-    print("onRemoteKeyboardCallback: ind:%d kc:%d",kbd_index,kc);
+    //    print("onRemoteKeyboardCallback: ind:%d kc:%d",kbd_index,kc);
     g_keyboards[kbd_index]->update(kc,act,modshift,modctrl,modalt);
 }
 void onRemoteMouseButtonCallback( Client *cl, int btn, int act, int modshift, int modctrl, int modalt ) {
