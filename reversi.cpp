@@ -66,6 +66,7 @@ void reverseInit() {
     updateStatusLine();
 }
 void reverseUpdate() {
+    // Convert mouse position to board cell coord
     Vec2 mpos = g_mouse->getCursorPos();
     mpos -= Vec2(SCRW/2,-SCRH/2);
     mpos.y = SCRH-mpos.y;
