@@ -2,21 +2,20 @@
 
 
 class Board;
-Board *g_board;
-StatusLine *g_statusline;
+Board *g_board; // ゲーム盤
+StatusLine *g_statusline; // NEXT:表示をするためのスプライト
 
-int g_turn; // mod2=0:black, =1:white
-
+int g_turn; // 2で割って余りが0なら黒、1なら白
 #define IS_BLACK_TURN(n) ( (n%2) == 0 )
 
 /////////////////////
 class Board : public Prop2D {
 public:
-    Grid *bg;
-    Grid *fg;
-    static const int BLACK=0, WHITE = 1, NONE=Grid::GRID_NOT_USED;
+    Grid *bg; // 背景の緑色の板面
+    Grid *fg; // 黒や白のピースを保持する
+    static const int BLACK=0, WHITE = 1, NONE=-1;
     Board() : Prop2D() {
-        setScl(48);
+        setScl(48); 
         bg = new Grid(8,8);
         addGrid(bg);
         fg = new Grid(8,8);
