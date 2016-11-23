@@ -202,8 +202,10 @@ void duelUpdate() {
     }
 
     // Automation
-    if( range(0,1000)<20) g_pcs[1]->tryJump();
-    if( range(0,1000)<30 && g_pcs[1]->charge_count>=PC::MAXCHARGE) g_pcs[1]->tryShoot();
+    if(!g_rh) {
+        if( range(0,1000)<20) g_pcs[1]->tryJump();
+        if( range(0,1000)<30 && g_pcs[1]->charge_count>=PC::MAXCHARGE) g_pcs[1]->tryShoot();
+    }
 }
 
 

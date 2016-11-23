@@ -43,6 +43,8 @@ extern Keyboard *g_keyboards[2];
 extern Mouse *g_mouse;
 extern Pad *g_pad;
 
+extern RemoteHead *g_rh;
+
 extern const int SCRW, SCRH;
 
 void sampleCommonInit(int argc, char**argv, const char*title);
