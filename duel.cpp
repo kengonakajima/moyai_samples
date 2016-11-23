@@ -136,7 +136,11 @@ public:
     void tryJump() {
         if( jumping == false ) {
             jumping = true;
-            v.y = 500;
+            if( charge_count<MAXCHARGE) {
+                v.y = 250;
+            } else {
+                v.y = 500;
+            }
         }
     }
     void onLand() {
