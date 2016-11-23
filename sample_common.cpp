@@ -21,6 +21,7 @@ Sound *g_enemydie_sound;
 Sound *g_shipdie_sound;
 Sound *g_charge_sound;
 Sound *g_shootbig_sound;
+Sound *g_machine_explode_sound;
 
 int g_last_render_cnt ;
 
@@ -153,7 +154,8 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
     g_beamhit_sound = g_sound_system->newSound( "./sounds/beamhit.wav");
     g_shipdie_sound = g_sound_system->newSound( "./sounds/shipdie.wav");
     g_charge_sound = g_sound_system->newSound( "./sounds/charge.wav");
-    g_shootbig_sound = g_sound_system->newSound( "./sounds/shootbig.wav");    
+    g_shootbig_sound = g_sound_system->newSound( "./sounds/shootbig.wav");
+    g_machine_explode_sound = g_sound_system->newSound( "./sounds/machine_explo.wav");
 
     if( headless_mode ) {
         Moyai::globalInitNetwork();

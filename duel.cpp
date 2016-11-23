@@ -57,7 +57,9 @@ public:
     int charge_count;
     double invincible_until;
     Vec2 tmpv;
-    PC(int faction) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0), charge_count(0), invincible_until(2) {
+    static const int MAXCHARGE=30;
+    
+    PC(int faction,int xdir) : Char(CHARTYPE_PC), faction(faction), charge_sound_at(0), charge_count(0), invincible_until(2) {
         setDeck(g_base_deck);
         setIndex( factionToBaseIndex(faction));
         setScl(48);
@@ -65,6 +67,7 @@ public:
         direction = (faction==0) ? 1:0;        
         jumping = false;
         initLoc();
+        walk(xdir);
     }
     void initLoc() {
         setLoc( (SCRW/2 - 200) * (faction==0?-1:1), 0 );    
@@ -142,7 +145,7 @@ public:
     void tryShoot() {
         if(charge_count>0) {
             Vec2 iniv(direction*500,0);
-            new Beam(faction,loc,iniv,charge_count);
+            new Beam(faction,loc,iniv,100);
             charge_count=0;
             g_shootbig_sound->play();
         }
@@ -173,18 +176,19 @@ void duelInit() {
     g_main_layer->insertProp(ground);
 
     
-    g_pcs[0] = new PC(0);
-    g_pcs[1] = new PC(1);
+    g_pcs[0] = new PC(0,1);
+    g_pcs[1] = new PC(1,-1);
     
 }
 void duelUpdate() {
     for(int i=0;i<2;i++) {
         if( g_keyboards[i]->getKey('W')) g_pcs[i]->tryJump();
         if( g_keyboards[i]->getKey(' ')) {
-            g_pcs[i]->charge();
-        } else {
-            g_pcs[i]->tryShoot();
+            if( g_pcs[i]->charge_count>=PC::MAXCHARGE) {
+                g_pcs[i]->tryShoot();
+            }
         }
+        if( g_pcs[i]->charge_count<PC::MAXCHARGE) g_pcs[i]->charge();
 
         int xd=0;
         if( g_keyboards[i]->getKey('A')) {
@@ -196,6 +200,10 @@ void duelUpdate() {
         }
         g_pcs[i]->walk(xd);
     }
+
+    // Automation
+    if( range(0,1000)<20) g_pcs[1]->tryJump();
+    if( range(0,1000)<30 && g_pcs[1]->charge_count>=PC::MAXCHARGE) g_pcs[1]->tryShoot();
 }
 
 
@@ -209,6 +217,19 @@ bool Beam::charPoll(double dt) {
         g_pcs[hit_pc_ind]->addKnockBack(kbv);
         return false;
     }
+
+    // Hit on beams each other
+    Prop *cur = g_main_layer->prop_top;
+    while(cur) {
+        Char *ch = (Char*)cur;
+        if(ch!=this&& ch->chartype==CHARTYPE_BEAM && ch->loc.len(loc) < 30) {
+            ch->to_clean = to_clean = true;
+            g_machine_explode_sound->play();
+            break;
+        }
+        cur=cur->next;
+    }
+    
     return true;
 }
 

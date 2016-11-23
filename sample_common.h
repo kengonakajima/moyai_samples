@@ -37,6 +37,7 @@ extern Sound *g_enemydie_sound;
 extern Sound *g_shipdie_sound;
 extern Sound *g_charge_sound;
 extern Sound *g_shootbig_sound;
+extern Sound *g_machine_explode_sound;
 
 extern Keyboard *g_keyboards[2];
 extern Mouse *g_mouse;
