@@ -206,9 +206,17 @@ void duelUpdate() {
     }
 
     // Automation
-    if(!g_rh) {
-        if( range(0,1000)<20) g_pcs[1]->tryJump();
-        if( range(0,1000)<30 && g_pcs[1]->charge_count>=PC::MAXCHARGE) g_pcs[1]->tryShoot();
+    int auto_ind=-1;
+    if(g_rh) {
+        if(g_rh->getClientCount()<2){
+            if(getFirstClientIndex()==0) auto_ind=1; else auto_ind=0;
+        }
+    } else {
+        auto_ind=1;
+    }
+    if(auto_ind>=0) {
+        if( range(0,1000)<20) g_pcs[auto_ind]->tryJump();
+        if( range(0,1000)<30 && g_pcs[auto_ind]->charge_count>=PC::MAXCHARGE) g_pcs[auto_ind]->tryShoot();
     }
 }
 

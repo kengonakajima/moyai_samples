@@ -53,6 +53,7 @@ void sampleCommonUpdate();
 void sampleCommonRender();
 void sampleCommonFinish();
 
+int getFirstClientIndex();
 
 //////////////////////////
 
