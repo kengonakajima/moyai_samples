@@ -2,7 +2,7 @@
 
 ////////////
 
-#define FIELDSIZE 512
+#define FIELDSIZE 128
 int g_field[FIELDSIZE][FIELDSIZE]; // [y][x]
 
 int getCell(int x, int y) {
@@ -41,22 +41,35 @@ public:
 /////////
 class PC : public Char {
 public:
-    PC() : Char(CHARTYPE_PC) {
+    Client *cl;
+    Camera *camera;
+    Keyboard *keyboard;
+    Pad *pad;
+    PC( Client *cl) : Char(CHARTYPE_PC), cl(cl), camera(NULL),keyboard(NULL),pad(NULL) {
+        assert(cl);
+        
         setDeck(g_base_deck);
         setIndex(ATLAS_PC_RED_BASE);
         setScl(48);
         g_main_layer->insertProp(this);
         setPriority(10000);
+        
+
+        camera = new Camera(cl);
+        g_main_layer->addDynamicCamera(camera);            
+        keyboard = new Keyboard();
+        pad = new Pad();                        
     }
     virtual bool charPoll(double dt) {
-
         Vec2 padvec;
-        g_pad->getVec( &padvec );
+        pad->getVec( &padvec );
         float speed = 700;
         Vec2 dloc = padvec * dt * speed;
         loc += dloc;
         if( dloc.x<0) setXFlip(false);
         if( dloc.x>0 ) setXFlip(true);
+        if(camera) camera->setLoc(loc); // camera is null when single_screen
+        //        print("%d: %f,%f",id,loc.x,loc.y);
         return true;
     }
 };
@@ -70,7 +83,7 @@ public:
 #define CHUNKNUM (FIELDSIZE/Chunk::SZ)
 Chunk *g_chunks[CHUNKNUM][CHUNKNUM]; // [y][x]
 
-PC *g_pc;
+
 
 //////
 Chunk *allocateChunk(int chx, int chy) {
@@ -78,7 +91,7 @@ Chunk *allocateChunk(int chx, int chy) {
     return chk;
 }
 void updateChunks() {
-    Vec2 center = g_pc->loc;
+    Vec2 center(0,0);
     float chunksz = Chunk::SZ*48;
     Vec2 minloc = center - Vec2(SCRW/2+chunksz,SCRH/2+chunksz);
     Vec2 maxloc = center + Vec2(SCRW/2+chunksz,SCRH/2+chunksz);
@@ -121,13 +134,34 @@ void updateZoom() {
     
 }
 
+void scrollConnect(RemoteHead *rh, Client *cl) {
+    print("scrollConnect clid:%d",cl->id);
+    PC *pc = new PC(cl);
+    pc->setLoc(200,200);
+    g_main_layer->addDynamicCamera(pc->camera);
+}
+void scrollRemoteKeyboard(Client *cl, int kc, int act) {
+    Prop *cur = g_main_layer->prop_top;
+    while(cur){
+        Char *ch=(Char*)cur;
+        if(ch->chartype == CHARTYPE_PC ) {
+            PC *pc =(PC*)ch;
+            if(pc->cl==cl) {
+                pc->keyboard->update(kc,act,0,0,0);
+                pc->pad->readKeyboard(pc->keyboard);
+            }
+        }
+        cur=cur->next;
+    }
+}
 
 void scrollInit() {
-
+    g_game_connect_callback = scrollConnect;
+    g_remote_keyboard_callback = scrollRemoteKeyboard;
+    g_main_layer->setCamera(NULL);
+    g_effect_layer->setCamera(NULL);
+ 
     initField();
-    
-    g_pc = new PC();
-    g_pc->setLoc(100,100);
     
     for(int chy=0;chy<CHUNKNUM;chy++){
         for(int chx=0;chx<CHUNKNUM;chx++) {
@@ -137,7 +171,6 @@ void scrollInit() {
     allocateChunk(0,0);
 }
 void scrollUpdate() {
-    g_camera->setLoc(g_pc->loc);
     updateZoom();
     updateChunks();
 }

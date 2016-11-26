@@ -121,6 +121,7 @@ public:
 
 
 
-
+extern void (*g_game_connect_callback)(RemoteHead *rh, Client *cl);
+extern void (*g_remote_keyboard_callback)(Client *cl, int kc, int act);
     
 #endif

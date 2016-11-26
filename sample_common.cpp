@@ -32,11 +32,13 @@ GLFWwindow *g_window;
 
 bool g_game_done = false;
 
+
 Keyboard *g_keyboards[2]; // Duel uses 2 keyboards
 Pad *g_pad;
 Mouse *g_mouse;
 
-
+void (*g_game_connect_callback)(RemoteHead *rh, Client *cl);
+void (*g_remote_keyboard_callback)(Client *cl, int kc, int act);
 
 const int SCRW=800, SCRH=450;
 
@@ -66,12 +68,14 @@ void cursorPosCallback( GLFWwindow *window, double x, double y ) {
 }
 void onConnectCallback( RemoteHead *rh, Client *cl) {
     print("onConnectCallback clid:%d",cl->id);
+    if(g_game_connect_callback) g_game_connect_callback(rh,cl);
 }
 
 void onRemoteKeyboardCallback( Client *cl, int kc, int act, int modshift, int modctrl, int modalt ) {
     int kbd_index = cl->id % 2;
     //    print("onRemoteKeyboardCallback: ind:%d kc:%d",kbd_index,kc);
     g_keyboards[kbd_index]->update(kc,act,modshift,modctrl,modalt);
+    if(g_remote_keyboard_callback) g_remote_keyboard_callback(cl,kc,act);
 }
 void onRemoteMouseButtonCallback( Client *cl, int btn, int act, int modshift, int modctrl, int modalt ) {
     g_mouse->updateButton( btn, act, modshift, modctrl, modalt );
