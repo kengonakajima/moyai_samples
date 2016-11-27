@@ -45,7 +45,10 @@ public:
     Camera *camera;
     Keyboard *keyboard;
     Pad *pad;
-    PC( Client *cl) : Char(CHARTYPE_PC), cl(cl), camera(NULL),keyboard(NULL),pad(NULL) {
+    Mouse *mouse;
+    Viewport *viewport;
+    float zoom_rate;
+    PC( Client *cl) : Char(CHARTYPE_PC), cl(cl) {
         assert(cl);
         
         setDeck(g_base_deck);
@@ -58,7 +61,11 @@ public:
         camera = new Camera(cl);
         g_main_layer->addDynamicCamera(camera);            
         keyboard = new Keyboard();
-        pad = new Pad();                        
+        pad = new Pad();
+        mouse =  new Mouse();
+        viewport = new Viewport(cl);
+        zoom_rate = 1;
+        modZoom(0);
     }
     virtual bool charPoll(double dt) {
         Vec2 padvec;
@@ -68,9 +75,15 @@ public:
         loc += dloc;
         if( dloc.x<0) setXFlip(false);
         if( dloc.x>0 ) setXFlip(true);
-        if(camera) camera->setLoc(loc); // camera is null when single_screen
+        camera->setLoc(loc); // camera is null when single_screen
+        if(keyboard->getKey('Z')) modZoom(0.05);
+        if(keyboard->getKey('X')) modZoom(-0.05);
         //        print("%d: %f,%f",id,loc.x,loc.y);
         return true;
+    }
+    void modZoom(float d) {
+        zoom_rate+=d;
+        viewport->setScale2D(SCRW*zoom_rate,SCRH*zoom_rate);
     }
 };
 
@@ -90,19 +103,9 @@ Chunk *allocateChunk(int chx, int chy) {
     Chunk *chk = new Chunk(chx,chy);
     return chk;
 }
-void updateChunks() {
-    Vec2 center(0,0);
-    float chunksz = Chunk::SZ*48;
-    Vec2 minloc = center - Vec2(SCRW/2+chunksz,SCRH/2+chunksz);
-    Vec2 maxloc = center + Vec2(SCRW/2+chunksz,SCRH/2+chunksz);
-    int minchy = (int)(minloc.y / chunksz), minchx = (int)(minloc.x / chunksz);
-    int maxchy = (int)(maxloc.y / chunksz), maxchx = (int)(maxloc.x / chunksz);
-    //    print("chkrange: %d %d %d %d", minchx, minchy, maxchx, maxchy);
-
-    for(int chy=minchy;chy<=maxchy;chy++) {
-        for(int chx=minchx;chx<=maxchx;chx++) {
-            if(chy<0||chx<0)continue;
-            if(chx>=CHUNKNUM||chy>=CHUNKNUM)continue;
+void setupChunks() {
+    for(int chy=0;chy<CHUNKNUM;chy++){
+        for(int chx=0;chx<CHUNKNUM;chx++) {
             if(g_chunks[chy][chx]==NULL) g_chunks[chy][chx] = new Chunk(chx,chy);
         }
     }
@@ -139,19 +142,33 @@ void scrollConnect(RemoteHead *rh, Client *cl) {
     PC *pc = new PC(cl);
     pc->setLoc(200,200);
     g_main_layer->addDynamicCamera(pc->camera);
+    g_main_layer->addDynamicViewport(pc->viewport);
 }
-void scrollRemoteKeyboard(Client *cl, int kc, int act) {
+PC *findPCByClient(Client *cl) {
     Prop *cur = g_main_layer->prop_top;
     while(cur){
         Char *ch=(Char*)cur;
         if(ch->chartype == CHARTYPE_PC ) {
             PC *pc =(PC*)ch;
             if(pc->cl==cl) {
-                pc->keyboard->update(kc,act,0,0,0);
-                pc->pad->readKeyboard(pc->keyboard);
+                return pc;
             }
         }
         cur=cur->next;
+    }
+    return NULL;
+}
+void scrollRemoteKeyboard(Client *cl, int kc, int act) {
+    PC *pc = findPCByClient(cl);
+    if(pc) {
+        pc->keyboard->update(kc,act,0,0,0);
+        pc->pad->readKeyboard(pc->keyboard);
+    }
+}
+void scrollRemoteMouseButton(Client *cl, int btn, int act) {
+    PC *pc = findPCByClient(cl);
+    if(pc) {
+        pc->mouse->updateButton(btn,act,0,0,0);
     }
 }
 
@@ -169,10 +186,13 @@ void scrollInit() {
         }
     }
     allocateChunk(0,0);
+    float zr=0.2f;
+    g_viewport->setScale2D( SCRW/zr, SCRH/zr );
+    g_camera->setLoc(SCRW*zr,SCRH*zr);
+    setupChunks();
 }
 void scrollUpdate() {
-    updateZoom();
-    updateChunks();
+    
 }
 
 SAMPLE_COMMON_MAIN_FUNCTION(scrollInit,scrollUpdate, "scroll");

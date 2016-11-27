@@ -39,8 +39,9 @@ Mouse *g_mouse;
 
 void (*g_game_connect_callback)(RemoteHead *rh, Client *cl);
 void (*g_remote_keyboard_callback)(Client *cl, int kc, int act);
-
-const int SCRW=800, SCRH=450;
+void (*g_remote_mouse_button_callback)(Client *cl, int btn, int act);
+    
+const int SCRW=640, SCRH=400;
 
 void winclose_callback( GLFWwindow *w ){
     exit(0);
@@ -79,6 +80,7 @@ void onRemoteKeyboardCallback( Client *cl, int kc, int act, int modshift, int mo
 }
 void onRemoteMouseButtonCallback( Client *cl, int btn, int act, int modshift, int modctrl, int modalt ) {
     g_mouse->updateButton( btn, act, modshift, modctrl, modalt );
+    if(g_remote_mouse_button_callback) g_remote_mouse_button_callback(cl,btn,act);
 }
 void onRemoteMouseCursorCallback( Client *cl, int x, int y ) {
     g_mouse->updateCursorPosition(x,y);
