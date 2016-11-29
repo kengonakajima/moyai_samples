@@ -59,14 +59,19 @@ public:
         
 
         camera = new Camera(cl);
-        g_main_layer->addDynamicCamera(camera);            
+        g_main_layer->addDynamicCamera(camera);
+        viewport = new Viewport(cl);
+        g_main_layer->addDynamicViewport(viewport);        
         keyboard = new Keyboard();
         pad = new Pad();
         mouse =  new Mouse();
-        viewport = new Viewport(cl);
         zoom_rate = 1;
         modZoom(0);
     }
+    void modZoom(float d) {
+        zoom_rate+=d;
+        viewport->setScale2D(SCRW*zoom_rate,SCRH*zoom_rate);
+    }    
     virtual bool charPoll(double dt) {
         Vec2 padvec;
         pad->getVec( &padvec );
@@ -81,10 +86,7 @@ public:
         //        print("%d: %f,%f",id,loc.x,loc.y);
         return true;
     }
-    void modZoom(float d) {
-        zoom_rate+=d;
-        viewport->setScale2D(SCRW*zoom_rate,SCRH*zoom_rate);
-    }
+
 };
 
 
@@ -141,8 +143,6 @@ void scrollConnect(RemoteHead *rh, Client *cl) {
     print("scrollConnect clid:%d",cl->id);
     PC *pc = new PC(cl);
     pc->setLoc(200,200);
-    g_main_layer->addDynamicCamera(pc->camera);
-    g_main_layer->addDynamicViewport(pc->viewport);
 }
 PC *findPCByClient(Client *cl) {
     Prop *cur = g_main_layer->prop_top;
