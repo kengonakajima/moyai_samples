@@ -45,7 +45,6 @@ public:
     Camera *camera;
     Keyboard *keyboard;
     Pad *pad;
-    Mouse *mouse;
     Viewport *viewport;
     float zoom_rate;
     PC( Client *cl) : Char(CHARTYPE_PC), cl(cl) {
@@ -64,7 +63,6 @@ public:
         g_main_layer->addDynamicViewport(viewport);        
         keyboard = new Keyboard();
         pad = new Pad();
-        mouse =  new Mouse();
         zoom_rate = 1;
         modZoom(0);
     }
@@ -163,12 +161,6 @@ void scrollRemoteKeyboard(Client *cl, int kc, int act) {
     if(pc) {
         pc->keyboard->update(kc,act,0,0,0);
         pc->pad->readKeyboard(pc->keyboard);
-    }
-}
-void scrollRemoteMouseButton(Client *cl, int btn, int act) {
-    PC *pc = findPCByClient(cl);
-    if(pc) {
-        pc->mouse->updateButton(btn,act,0,0,0);
     }
 }
 
