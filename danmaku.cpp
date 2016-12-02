@@ -4,6 +4,8 @@
 class Ship;
 Ship *g_myship;
 
+bool g_enable_linearsync=false;
+
 void clearAllEnemies();
 
 ///////////////////////
@@ -17,7 +19,8 @@ public:
         setUVRot(1);
         setXFlip(1);            
         setIndex(ATLAS_BEAM);
-        g_main_layer->insertProp(this);        
+        g_main_layer->insertProp(this);
+        if(g_enable_linearsync) setLocSyncMode(LOCSYNCMODE_LINEAR);
     }
     virtual bool charPoll(double dt) {
         if(isOutOfScreen())return false;
@@ -91,6 +94,7 @@ public:
         setLoc(loc);
         setDeck(g_base_deck);
         g_main_layer->insertProp(this);
+        if(g_enable_linearsync) setLocSyncMode(LOCSYNCMODE_LINEAR);
     }
     virtual bool charPoll(double dt) {
         if( isOutOfScreen() ) { return false; }        
@@ -112,6 +116,7 @@ public:
         setScl(range(24,48));
         setColor( Color(1,1,1,range(0.2,1)));
         g_effect_layer->insertProp(this);
+        if(g_enable_linearsync) setLocSyncMode(LOCSYNCMODE_LINEAR);
     }
     virtual bool prop2DPoll(double dt) {
         loc += v*dt;
@@ -202,6 +207,11 @@ void danmakuUpdate() {
     if( g_keyboards[0]->getKey( GLFW_KEY_SPACE ) || g_keyboards[1]->getKey(GLFW_KEY_SPACE) ) {
         g_myship->tryShoot();
     }
+    if( g_keyboards[0]->getKey('L') || g_keyboards[1]->getKey('L')  ) {
+        g_enable_linearsync = true;
+        print("enabled linearsync");
+    }
+    
     ////
     static double last_pop_at = 0;
     if( last_pop_at < g_myship->accum_time -1) {
