@@ -5,3 +5,4 @@ duel
 bench
 scroll
 .DS_Store
+*.dSYM
