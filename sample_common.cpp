@@ -283,8 +283,6 @@ void sampleCommonUpdate() {
         last_print_at = t;
     }
 
-    if(g_rh) g_rh->heartbeat();
-
     // need sleep even when using vsync, because GLFW don't wait vsync when window is background
     double loop_end_at = now();
     double loop_time = loop_end_at - loop_start_at;
