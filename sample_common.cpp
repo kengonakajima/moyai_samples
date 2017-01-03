@@ -92,6 +92,8 @@ bool sampleCommonDone() {
 
 void sampleCommonInit(int argc, char **argv, const char *title ) {
     bool headless_mode=false, enable_videostream=false, enable_spritestream=false, enable_reprecation=false;
+    int sortsyncthres=50;
+    
     for(int i=0;;i++) {
         if(!argv[i])break;
         if(strcmp(argv[i], "--videostream") == 0 || strcmp(argv[i],"--vs")==0 ) {
@@ -105,12 +107,16 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         if(strcmp(argv[i], "--reprecation") == 0 ) {
             enable_reprecation = true;
         }
+        if(strncmp(argv[i], "--sortsyncthres=", strlen("--sortsyncthres="))==0) {
+            sortsyncthres = atoi( argv[i] + strlen("--sortsyncthres="));
+        }
     }
     if( headless_mode && enable_spritestream==false && enable_videostream == false ) {
         print("headless mode with no stream setting. add --videostream or --spritestream");
         exit(1);
     }
-    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s", headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title );
+    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sortsyncthres:%d",
+          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sortsyncthres );
 
 
 #ifdef __APPLE__    
@@ -176,6 +182,7 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         if( enable_spritestream ) g_rh->enableSpriteStream();
         if( enable_videostream ) g_rh->enableVideoStream(SCRW*RETINA,SCRH*RETINA,3);
         if( enable_reprecation ) g_rh->enableReprecation(REPRECATOR_SERVER_PORT);
+        g_rh->setSortSyncThres(sortsyncthres);
         
         g_moyai_client->setRemoteHead(g_rh);
         g_rh->setTargetMoyaiClient(g_moyai_client);
