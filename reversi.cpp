@@ -39,6 +39,7 @@ public:
         g_main_layer->insertProp(this);
     }
     void setPiece(int x,int y,int col) {
+        if(x<0||y<0||x>=8||y>=8)return;
         if(col==NONE) fg->set(x,y,Grid::GRID_NOT_USED); else fg->set(x,y,col==WHITE?ATLAS_PIECE_WHITE:ATLAS_PIECE_BLACK);        
     }
     int getPiece(int x, int y) {
