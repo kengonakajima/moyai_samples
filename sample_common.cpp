@@ -93,6 +93,7 @@ bool sampleCommonDone() {
 void sampleCommonInit(int argc, char **argv, const char *title ) {
     bool headless_mode=false, enable_videostream=false, enable_spritestream=false, enable_reprecation=false;
     int sortsyncthres=50, linearsyncscorethres=50, nonlinearsyncscorethres=50;
+    bool norealsound=false;
     
     for(int i=0;;i++) {
         if(!argv[i])break;
@@ -116,13 +117,17 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         if(strncmp(argv[i], "--nonlinearsyncscorethres=", strlen("--nonlinearsyncscorethres="))==0) {
             nonlinearsyncscorethres = atoi( argv[i] + strlen("--nonlinearsyncscorethres="));
         }
+        if(strcmp(argv[i], "--norealsound")==0) {
+            norealsound =true;
+        }
     }
     if( headless_mode && enable_spritestream==false && enable_videostream == false ) {
         print("headless mode with no stream setting. add --videostream or --spritestream");
         exit(1);
     }
-    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sortsyncthres:%d linearsyncscorethres:%d",
-          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sortsyncthres, linearsyncscorethres );
+    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sortsyncthres:%d linearsyncscorethres:%d norealsound::%d",
+          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sortsyncthres, linearsyncscorethres,
+          norealsound );
 
 
 #ifdef __APPLE__    
@@ -170,6 +175,7 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
 
     // sounds
     g_sound_system = new SoundSystem();
+    if(norealsound) Sound::g_no_real_sound=true;
     g_shoot_sound = g_sound_system->newSound( "./sounds/shoot.wav");
     g_enemydie_sound = g_sound_system->newSound( "./sounds/enemydie.wav");
     g_beamhit_sound = g_sound_system->newSound( "./sounds/beamhit.wav");
