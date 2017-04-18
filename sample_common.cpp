@@ -92,8 +92,9 @@ bool sampleCommonDone() {
 
 void sampleCommonInit(int argc, char **argv, const char *title ) {
     bool headless_mode=false, enable_videostream=false, enable_spritestream=false, enable_reprecation=false;
-    int sortsyncthres=50, linearsyncscorethres=50, nonlinearsyncscorethres=50;
-    bool norealsound=false;
+    int sort_sync_thres=50, linear_sync_score_thres=50, nonlinear_sync_score_thres=50;
+    bool no_real_sound=false;
+    bool disable_timestamp=false;
     
     for(int i=0;;i++) {
         if(!argv[i])break;
@@ -108,26 +109,29 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         if(strcmp(argv[i], "--reprecation") == 0 ) {
             enable_reprecation = true;
         }
-        if(strncmp(argv[i], "--sortsyncthres=", strlen("--sortsyncthres="))==0) {
-            sortsyncthres = atoi( argv[i] + strlen("--sortsyncthres="));
+        if(strncmp(argv[i], "--sort-sync-thres=", strlen("--sort-sync-thres="))==0) {
+            sort_sync_thres = atoi( argv[i] + strlen("--sort-sync-thres="));
         }
-        if(strncmp(argv[i], "--linearsyncscorethres=", strlen("--linearsyncscorethres="))==0) {
-            linearsyncscorethres = atoi( argv[i] + strlen("--linearsyncscorethres="));
+        if(strncmp(argv[i], "--linear-sync-score-thres=", strlen("--linear-sync-score-thres="))==0) {
+            linear_sync_score_thres = atoi( argv[i] + strlen("--linear-sync-score-thres="));
         }
-        if(strncmp(argv[i], "--nonlinearsyncscorethres=", strlen("--nonlinearsyncscorethres="))==0) {
-            nonlinearsyncscorethres = atoi( argv[i] + strlen("--nonlinearsyncscorethres="));
+        if(strncmp(argv[i], "--nonlinear-sync-score-thres=", strlen("--nonlinear-sync-score-thres="))==0) {
+            nonlinear_sync_score_thres = atoi( argv[i] + strlen("--nonlinear-sync-score-thres="));
         }
-        if(strcmp(argv[i], "--norealsound")==0) {
-            norealsound =true;
+        if(strcmp(argv[i], "--no-real-sound")==0) {
+            no_real_sound =true;
+        }
+        if(strcmp(argv[i], "--disable-timestamp")==0) {
+            disable_timestamp=true;
         }
     }
     if( headless_mode && enable_spritestream==false && enable_videostream == false ) {
         print("headless mode with no stream setting. add --videostream or --spritestream");
         exit(1);
     }
-    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sortsyncthres:%d linearsyncscorethres:%d norealsound::%d",
-          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sortsyncthres, linearsyncscorethres,
-          norealsound );
+    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sort_sync_thres:%d linear_sync_score_thres:%d norealsound::%d",
+          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sort_sync_thres, linear_sync_score_thres,
+          no_real_sound );
 
 
 #ifdef __APPLE__    
@@ -175,7 +179,7 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
 
     // sounds
     g_sound_system = new SoundSystem();
-    if(norealsound) Sound::g_no_real_sound=true;
+    if(no_real_sound) Sound::g_no_real_sound=true;
     g_shoot_sound = g_sound_system->newSound( "./sounds/shoot.wav");
     g_enemydie_sound = g_sound_system->newSound( "./sounds/enemydie.wav");
     g_beamhit_sound = g_sound_system->newSound( "./sounds/beamhit.wav");
@@ -194,9 +198,10 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         if( enable_spritestream ) g_rh->enableSpriteStream();
         if( enable_videostream ) g_rh->enableVideoStream(SCRW*RETINA,SCRH*RETINA,3);
         if( enable_reprecation ) g_rh->enableReprecation(REPRECATOR_SERVER_PORT);
-        g_rh->setSortSyncThres(sortsyncthres);
-        g_rh->setLinearSyncScoreThres(linearsyncscorethres);
-        g_rh->setNonLinearSyncScoreThres(nonlinearsyncscorethres);
+        if( disable_timestamp ) g_rh->disableTimestamp();
+        g_rh->setSortSyncThres(sort_sync_thres);
+        g_rh->setLinearSyncScoreThres(linear_sync_score_thres);
+        g_rh->setNonLinearSyncScoreThres(nonlinear_sync_score_thres);
         
         g_moyai_client->setRemoteHead(g_rh);
         g_rh->setTargetMoyaiClient(g_moyai_client);
