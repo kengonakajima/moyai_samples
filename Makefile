@@ -19,22 +19,22 @@ endif
 
 all : min dm rv duel bench scroll
 
-min : min.cpp sample_common.cpp
+min : min.cpp sample_common.cpp moyai/libmoyaicl.a
 	g++ $(CFLAGS) min.cpp sample_common.cpp $(LIBFLAGS) -o min
 
-dm : danmaku.cpp sample_common.cpp
+dm : danmaku.cpp sample_common.cpp moyai/libmoyaicl.a
 	g++ $(CFLAGS) danmaku.cpp sample_common.cpp $(LIBFLAGS) -o dm
 
-rv : reversi.cpp sample_common.cpp
+rv : reversi.cpp sample_common.cpp moyai/libmoyaicl.a
 	g++ $(CFLAGS) reversi.cpp sample_common.cpp $(LIBFLAGS) -o rv
 
-duel : duel.cpp sample_common.cpp
+duel : duel.cpp sample_common.cpp moyai/libmoyaicl.a
 	g++ $(CFLAGS) duel.cpp sample_common.cpp $(LIBFLAGS) -o duel
 
-bench : bench.cpp sample_common.cpp
+bench : bench.cpp sample_common.cpp moyai/libmoyaicl.a
 	g++ $(CFLAGS) bench.cpp sample_common.cpp $(LIBFLAGS) -o bench
 
-scroll : scroll.cpp sample_common.cpp
+scroll : scroll.cpp sample_common.cpp moyai/libmoyaicl.a
 	g++ $(CFLAGS) scroll.cpp sample_common.cpp $(LIBFLAGS) -o scroll
 
 clean :
