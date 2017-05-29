@@ -31,7 +31,7 @@ RemoteHead *g_rh;
 GLFWwindow *g_window;
 
 bool g_game_done = false;
-
+bool g_disable_rendering = false;
 
 Keyboard *g_keyboards[2]; // Duel uses 2 keyboards
 Pad *g_pad;
@@ -95,7 +95,7 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
     int sort_sync_thres=50, linear_sync_score_thres=50, nonlinear_sync_score_thres=50;
     bool no_real_sound=false;
     bool disable_timestamp=false;
-    
+    bool disable_compression=false;
     for(int i=0;;i++) {
         if(!argv[i])break;
         if(strcmp(argv[i], "--videostream") == 0 || strcmp(argv[i],"--vs")==0 ) {
@@ -123,6 +123,12 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         }
         if(strcmp(argv[i], "--disable-timestamp")==0) {
             disable_timestamp=true;
+        }
+        if(strcmp(argv[i], "--disable-rendering")==0) {
+            g_disable_rendering = true;
+        }
+        if(strcmp(argv[i], "--disable-compression")==0) {
+            disable_compression = true;
         }
     }
     if( headless_mode && enable_spritestream==false && enable_videostream == false ) {
@@ -202,6 +208,7 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         g_rh->setSortSyncThres(sort_sync_thres);
         g_rh->setLinearSyncScoreThres(linear_sync_score_thres);
         g_rh->setNonLinearSyncScoreThres(nonlinear_sync_score_thres);
+        g_rh->enable_compression=!disable_compression;
         
         g_moyai_client->setRemoteHead(g_rh);
         g_rh->setTargetMoyaiClient(g_moyai_client);
@@ -327,6 +334,7 @@ void sampleCommonUpdate() {
     
 }
 void sampleCommonRender() {
+    if(g_disable_rendering)return;
     g_last_render_cnt = g_moyai_client->render();
 }
 
