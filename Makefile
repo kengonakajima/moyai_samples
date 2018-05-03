@@ -4,16 +4,16 @@ SNAPPYOBJS=moyai/snappy/snappy-sinksource.o moyai/snappy/snappy-c.o moyai/snappy
 
 
 ifeq ($(UNAME),Darwin)
-CFLAGS=-I./moyai/ -I/usr/local/Cellar/libuv/1.8.0/include/ -I./moyai/glfw-3.2/include #-g
+CFLAGS=-I./moyai/ -I/usr/local/Cellar/libuv/1.20.2/include/ -I./moyai/glfw-3.2/include #-g
 UNTZDEPENDLIB=-framework AudioToolbox /usr/local/lib/libvorbis.a /usr/local/lib/libvorbisfile.a /usr/local/lib/libogg.a
 FREETYPELIB=moyai/freetype-2.4.10/objs/.libs/libfreetype.a
 BZ2LIB=moyai/bzip2-1.0.6/libbz2.a
 ZLIBLIB=moyai/zlib-1.2.7/libz.a
-LIBFLAGS=moyai/libmoyaicl.a /usr/local/Cellar/libuv/1.8.0/lib/libuv.a $(UNTZDEPENDLIB) -framework Cocoa -framework IOKit -framework OpenGL -framework CoreFoundation ./moyai/glfw-3.2/src/libglfw3.a -framework CoreVideo -ljpeg -L/usr/local/lib $(SNAPPYOBJS) moyai/libftgl.a $(FREETYPELIB) $(BZ2LIB) $(ZLIBLIB) -framework OpenAL moyai/libalut.a
+LIBFLAGS=moyai/libmoyaicl.a moyai/libuv-1.20.2/.libs/libuv.a $(UNTZDEPENDLIB) -framework Cocoa -framework IOKit -framework OpenGL -framework CoreFoundation ./moyai/glfw-3.2/src/libglfw3.a -framework CoreVideo -ljpeg -L/usr/local/lib $(SNAPPYOBJS) moyai/libftgl.a $(FREETYPELIB) $(BZ2LIB) $(ZLIBLIB) -framework OpenAL moyai/libalut.a
 else
-CFLAGS=-I./moyai/ -std=c++11 -g
+CFLAGS=-I./moyai/ -std=c++11 -g -I./moyai/libuv-1.20.2/include
 JPEGLIB=moyai/jpeg-8d/libjpeg.a
-LIBFLAGS=moyai/libmoyaicl.a -L/usr/local/lib $(ZLIBLIB) $(SNAPPYOBJS) -luv $(JPEGLIB)
+LIBFLAGS=moyai/libmoyaicl.a -L/usr/local/lib $(ZLIBLIB) $(SNAPPYOBJS) $(JPEGLIB) ./moyai/libuv-1.20.2/.libs/libuv.a -lpthread
 endif
 
 
