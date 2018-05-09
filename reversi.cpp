@@ -13,7 +13,7 @@ class Board : public Prop2D {
 public:
     Grid *bg; // 背景の緑色の板面
     Grid *fg; // 黒や白のピースを保持する
-    static const int BLACK=0, WHITE = 1, NONE=-1;
+    static const int BLACK=0, WHITE = 1, NONE=-1, OUTSIDE=-2;
     Board() : Prop2D() {
         setScl(48); 
         bg = new Grid(8,8);
@@ -43,6 +43,7 @@ public:
         if(col==NONE) fg->set(x,y,Grid::GRID_NOT_USED); else fg->set(x,y,col==WHITE?ATLAS_PIECE_WHITE:ATLAS_PIECE_BLACK);        
     }
     int getPiece(int x, int y) {
+        if(x<0||y<0||x>=8||y>=8) return OUTSIDE;
         int ind = fg->get(x,y);
         if(ind==Grid::GRID_NOT_USED) 
             return NONE;
@@ -80,7 +81,9 @@ void reverseUpdate() {
         g_mouse->clearToggled(0);
         print("mouse 0 press:%f,%f bpos:%d,%d",mpos.x,mpos.y, bx,by);
         int curcol = g_board->getPiece(bx,by);
-        if( curcol != Board::NONE) {
+        if(curcol==Board::OUTSIDE) {
+            return;
+        } else if( curcol != Board::NONE) {
             print("turnover:%d",curcol);
             g_board->setPiece(bx,by, curcol == Board::WHITE ? Board::BLACK : Board::WHITE );
         } else {
