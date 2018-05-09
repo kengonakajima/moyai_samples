@@ -4,7 +4,7 @@ SNAPPYOBJS=moyai/snappy/snappy-sinksource.o moyai/snappy/snappy-c.o moyai/snappy
 
 
 ifeq ($(UNAME),Darwin)
-CFLAGS=-I./moyai/ -I/usr/local/Cellar/libuv/1.20.2/include/ -I./moyai/glfw-3.2/include #-g
+CFLAGS=-I./moyai/ -I./moyai/libuv-1.20.2/include/ -I./moyai/glfw-3.2/include #-g
 UNTZDEPENDLIB=-framework AudioToolbox /usr/local/lib/libvorbis.a /usr/local/lib/libvorbisfile.a /usr/local/lib/libogg.a
 FREETYPELIB=moyai/freetype-2.4.10/objs/.libs/libfreetype.a
 BZ2LIB=moyai/bzip2-1.0.6/libbz2.a
