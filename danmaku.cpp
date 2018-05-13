@@ -4,7 +4,7 @@
 class Ship;
 Ship *g_myship;
 
-bool g_enable_linearsync=false;
+bool g_enable_linearsync=true;
 
 void clearAllEnemies();
 
@@ -208,13 +208,13 @@ void danmakuUpdate() {
         g_myship->tryShoot();
     }
     if( g_keyboards[0]->getKey('L') || g_keyboards[1]->getKey('L')  ) {
-        g_enable_linearsync = true;
-        print("enabled linearsync");
+        g_enable_linearsync = !g_enable_linearsync;
+        print("linearsync:%d",g_enable_linearsync);
     }
     
     ////
     static double last_pop_at = 0;
-    if( last_pop_at < g_myship->accum_time -1) {
+    if( last_pop_at < g_myship->accum_time - 2) {
         last_pop_at = g_myship->accum_time;
         int n = range(0,1) > 0.9 ? 5 : 1;
         for(int i=0;i<n;i++) new Enemy( Vec2( range(-SCRW/2,SCRW/2), SCRH/2) );
