@@ -135,9 +135,8 @@ void sampleCommonInit(int argc, char **argv, const char *title ) {
         print("headless mode with no stream setting. add --videostream or --spritestream");
         exit(1);
     }
-    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sort_sync_thres:%d linear_sync_score_thres:%d norealsound::%d",
-          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sort_sync_thres, linear_sync_score_thres,
-          no_real_sound );
+    print("sampleCommonInit: headless_mode:%d spritestream:%d videostream:%d reprecation:%d title:%s sort_sync_thres:%d linear_sync_score_thres:%d nonlinear_sync_score_thres:%d norealsound::%d",
+          headless_mode, enable_spritestream, enable_videostream, enable_reprecation, title, sort_sync_thres, linear_sync_score_thres, nonlinear_sync_score_thres, no_real_sound );
 
 
 #ifdef __APPLE__    
