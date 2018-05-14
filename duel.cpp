@@ -165,7 +165,7 @@ public:
 };
 
 
-void duelInit() {
+void setupGround() {
     Prop2D *ground = new Prop2D();
     Grid *g = new Grid(24,6);
     for(int j=0;j<g->height;j++) {
@@ -178,8 +178,9 @@ void duelInit() {
     ground->setScl(48);
     ground->setLoc(-12*48,-8*48);
     g_main_layer->insertProp(ground);
-
-    
+}
+void duelInit() {
+    setupGround();
     g_pcs[0] = new PC(0,1);
     g_pcs[1] = new PC(1,-1);
     
